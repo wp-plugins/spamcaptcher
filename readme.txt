@@ -1,0 +1,61 @@
+=== Plugin Name ===
+Contributors: SpamCaptcher
+Tags: comments, registration, spamcaptcher, antispam, captcha, wpmu, spam, spam-free account, behavior analysis, gravity forms, form, protection, security
+Requires at least: 2.7
+Tested up to: 2.9.1
+Stable tag: 1.0.0
+
+Integrates SpamCaptcher anti-spam methods with WordPress including comment and registration spam protection. WPMU Compatible.
+
+== Description ==
+
+= What is SpamCaptcher? =
+
+The [SpamCaptcher](https://www.spamcaptcher.com/ "SpamCaptcher") plugin helps keep spam off your blog by integrating the CAPTCHA and Spam-Free Account technology of SpamCaptcher on your site.
+
+== Installation ==
+
+To install in regular WordPress and [WordPress MultiSite](http://codex.wordpress.org/Create_A_Network):
+
+1. Upload the `wp-spamcaptcher` folder to the `/wp-content/plugins/` directory
+2. Activate the plugin through the `Plugins` menu in WordPress
+3. Get your free SpamCaptcher account [here](https://www.spamcaptcher.com "SpamCaptcher Registration")
+
+To install in WordPress MU (Forced Activation/Site-Wide):
+
+1. Upload the `wp-spamcaptcher` folder to the `/wp-content/mu-plugins` directory
+2. **Move** the `wp-spamcaptcher.php` file out of the `wp-spamcaptcher` folder so that it is in `/wp-content/mu-plugins`
+3. Now you should have `/wp-content/mu-plugins/wp-spamcaptcher.php` and `/wp-content/mu-plugins/wp-spamcaptcher/`
+4. Go to the administrator menu and then go to **Site Admin > SpamCaptcher**
+5. Get your free SpamCaptcher account [here](https://www.spamcaptcher.com "SpamCaptcher Registration")
+
+== Requirements ==
+
+* You need a [free SpamCaptcher account](https://www.spamcaptcher.com "SpamCaptcher Registration")
+* You need to be running PHP 5 or later
+
+== ChangeLog ==
+
+= Version 1.0.0 =
+* First release
+
+== Frequently Asked Questions ==
+
+= HELP, I'm still getting spam! =
+There are four common issues that make SpamCaptcher appear to be broken:
+
+1. **Moderation Emails**: SpamCaptcher marks comments as spam, so even though the comments don't actually get posted, you will be notified of what is supposedly new spam. It is recommended to turn off moderation emails with SpamCaptcher.
+2. **Akismet Spam Queue**: Again, because SpamCaptcher marks comments with a wrongly entered CAPTCHA as spam, they are added to the spam queue. These comments however weren't posted to the blog so SpamCaptcher is still doing it's job. It is recommended to either ignore the Spam Queue and clear it regularly or disable Akismet completely. SpamCaptcher takes care of all of the spam created by bots, which is the usual type of spam. The only other type of spam that would get through is human spam, where humans are hired to manually solve CAPTCHAs. If you still get spam while only having SpamCaptcher enabled, you could be a victim of the latter practice. If this is the case, you should force Spam-Free Account authentication.
+3. **Trackbacks and Pingbacks**: SpamCaptcher can't do anything about pingbacks and trackbacks. You can disable pingbacks and trackbacks in Options > Discussion > Allow notifications from other Weblogs (Pingbacks and trackbacks).
+4. **Human Spammers**: Some people are actually paid to solve CAPTCHAs so that spam can get through. The good news is that you can use our Spam-Free Account service to fight back against these spammers and using it couldn't be simpler. Just go to your Settings page for your SpamCaptcher plugin and check the Force Spam-Free Account checkbox. 
+
+= Do CAPTCHAs really fight off spam? =
+
+Absolutely. To keep the cost of spamming low spammers use automated bots to push as much spam as possible out across the web. Thus, by keeping the bots out you force spammers to use humans to push out spam which significantly drives up the cost of spam and reduces the frequency of it.
+
+= What is this Spam-Free Account thing all about? =
+
+Our Spam-Free Account service is designed to fight back against Human CAPTCHA Solvers while rewarding legitimate users. It fights off the Human CAPTCHA Solvers by increasing the cost to them to spam. It rewards legitimate users by allowing them to bypass CAPTCHAs as long as they don't spam. For more detailed information check out our [Spam-Free Account documentation] (https://www.spamcaptcher.com/captcha/spamFreeAccountDetails.jsp#details_spam_free_account).
+
+== Demo ==
+You can see a live demo of our CAPTCHA and Spam-Free Account services on our website's [demo page](https://www.spamcaptcher.com/captcha/Demo.action "SpamCaptcher Demo").

@@ -1,0 +1,34 @@
+/* SpamCaptcher styling */
+.recaptcha-error {
+   font-size: 1.8em;
+   padding-bottom: 8px;
+}
+/* END SpamCaptcher STYLING */
+
+/* ADMINISTRATION SETTINGS SpamCaptcher */
+.lang-select label, .theme-select label {
+   vertical-align: middle !important;
+}
+
+.lang-select select, .theme-select select {
+   vertical-align: middle !important;
+}
+
+.recaptcha-form {
+   margin: auto !important;
+   width: 25em !important;
+}
+
+.recaptcha-options td {
+   vertical-align: top !important;
+}
+
+.which-key label {
+   font-weight: bold;
+}
+
+.copyright {
+   text-align: center;
+   font-size: .85em;
+}
+/* END ADMINISTRATION SETTINGS SpamCaptcher */
