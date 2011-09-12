@@ -3,7 +3,7 @@
 Plugin Name: WP-SpamCaptcher
 Plugin URI: http://www.spamcaptcher.com/wp-spamcaptcher/
 Description: Integrates SpamCaptcher anti-spam solutions with wordpress
-Version: 1.0.0
+Version: 1.0.1
 Author: SpamCaptcher
 Email: support@spamcaptcher.com
 Author URI: http://www.spamcaptcher.com
