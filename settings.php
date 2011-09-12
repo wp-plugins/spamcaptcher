@@ -91,7 +91,7 @@
                <input type="text" name="spamcaptcher_options[account_id]" size="60" value="<?php echo $this->options['account_id']; ?>" />
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#authentication_account_id" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#authentication_account_id" target="_blank" title="Help">?</a>
 			</td>
          </tr>
          <tr valign="top">
@@ -100,7 +100,7 @@
                <input type="text" name="spamcaptcher_options[account_password]" size="60" value="<?php echo $this->options['account_password']; ?>" />
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#authentication_account_private_key" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#authentication_account_private_key" target="_blank" title="Help">?</a>
 			</td>
          </tr>
       </table>
@@ -114,7 +114,7 @@
                <label for="spamcaptcher_options[show_in_comments]"><?php _e('Enable for comments form', 'spamcaptcher'); ?></label>
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#comments_activation" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#comments_activation" target="_blank" title="Help">?</a>
 			</td>
          </tr>
          
@@ -126,7 +126,7 @@
                <?php $this->capabilities_dropdown(); ?>
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#comments_target" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#comments_target" target="_blank" title="Help">?</a>
 			</td>
          </tr>
 		 
@@ -137,7 +137,7 @@
                <label for="spamcaptcher_options[comments_force_sfa]"><?php _e('Force Spam-Free Account for Comments', 'spamcaptcher'); ?></label>
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#comments_spam_free_account" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#comments_spam_free_account" target="_blank" title="Help">?</a>
 			</td>
          </tr>
 		 
@@ -151,7 +151,7 @@
 			   <input size="8" maxlength="3" type="text" id ="spamcaptcher_options[max_moderation_score]" name="spamcaptcher_options[max_moderation_score]" value="<?php echo $this->options['max_moderation_score']; ?>" onkeypress="return isIntOrValidControl(event);" />
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#comments_moderation_scores" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#comments_moderation_scores" target="_blank" title="Help">?</a>
 			</td>
          </tr>
 
@@ -167,7 +167,7 @@
                <label for="spamcaptcher_options[show_in_registration]"><?php _e('Enable for registration form', 'spamcaptcher'); ?></label>
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#registration_activation" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#registration_activation" target="_blank" title="Help">?</a>
 			</td>
          </tr>
 		 
@@ -178,7 +178,7 @@
                <label for="spamcaptcher_options[registration_force_sfa]"><?php _e('Force Spam-Free Account for Registration', 'spamcaptcher'); ?></label>
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#registration_spam_free_account" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#registration_spam_free_account" target="_blank" title="Help">?</a>
 			</td>
          </tr>
 
@@ -193,7 +193,7 @@
                <label for="spamcaptcher_options[show_in_password_reset]"><?php _e('Enable for password reset', 'spamcaptcher'); ?></label>
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#password_reset_activation" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#password_reset_activation" target="_blank" title="Help">?</a>
 			</td>
          </tr>
 
@@ -209,7 +209,7 @@
                <label for="spamcaptcher_options[bind_to_form]"><?php _e('Bind to Form', 'spamcaptcher'); ?></label>
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#miscellaneous_bind_to_form" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#miscellaneous_bind_to_form" target="_blank" title="Help">?</a>
 			</td>
          </tr>
 		 
@@ -220,7 +220,7 @@
                <label for="spamcaptcher_options[toggle_opacity]"><?php _e('Toggle Opacity', 'spamcaptcher'); ?></label>
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#miscellaneous_toggle_opacity" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#miscellaneous_toggle_opacity" target="_blank" title="Help">?</a>
 			</td>
          </tr>
 
@@ -235,7 +235,7 @@
                <input type="text" name="spamcaptcher_options[incorrect_response_error]" size="70" value="<?php echo $this->options['incorrect_response_error']; ?>" />
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/captcha/slfWordPress.jsp#error_messages_incorrect_guess" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#error_messages_incorrect_guess" target="_blank" title="Help">?</a>
 			</td>
          </tr>
       </table>
