@@ -2,8 +2,8 @@
 Contributors: SpamCaptcher
 Tags: comments, registration, spamcaptcher, antispam, captcha, wpmu, spam, spam-free account, behavior analysis, gravity forms, form, protection, security
 Requires at least: 2.7
-Tested up to: 2.9.1
-Stable tag: 1.0.0
+Tested up to: 3.2.1
+Stable tag: 1.0.1
 
 Integrates SpamCaptcher anti-spam methods with WordPress including comment and registration spam protection. WPMU Compatible.
 
@@ -11,7 +11,23 @@ Integrates SpamCaptcher anti-spam methods with WordPress including comment and r
 
 = What is SpamCaptcher? =
 
-The [SpamCaptcher](https://www.spamcaptcher.com/) plugin helps keep spam off your blog by integrating the CAPTCHA and Spam-Free Account technology of SpamCaptcher on your site.
+The [SpamCaptcher](https://www.spamcaptcher.com/) plugin helps keep spam off your site by integrating the CAPTCHA, Spam-Free Account and Behavior Analysis technologies of SpamCaptcher on your site. Combining these free technologies you can keep spammers away while keeping your end users happy. Below is a brief description of each of the services we offer:
+
+= CAPTCHA =
+
+Instead of having users strain their eyes to try and figure out what some distorted image says our CAPTCHA asks users to rotate four images to their approximate upright positions. We have found that users find this task easier and more enjoyable while computers find it more difficult than solving the traditional distorted text CAPTCHA. We have also seen that users get very fast at solving our CAPTCHAs very quickly.
+
+For users with visual impairments we offer an audio alternative that asks the user to construct a string of characters that meet a set of randomly generated constraints. For example, the user might be asked to construct a string of characters that is at least five characters long, starts with the letter Q, ends with an even number, and contains three consecutive numbers of which each number is less than six. This may sound like a daunting task but we have found that users get get pretty fast at solving these types of problems. 
+
+We also highly recommend that all users get a Spam-Free Account in order to securely bypass CAPTCHAs.
+
+= Spam-Free Account =
+
+Our Spam-Free Account service is one that benefits both website owners and end users. For website owners it provides a way to fight off Human CAPTCHA Solvers which we believe will also provide a long term solution to spam. For end users it provides a way to not have to solve CAPTCHAs so long as the user is not a spammer. For those of you that think we are making some pretty strong claims ... you are correct, and we invite you to read our [Spam-Free Account documentation](https://www.spamcaptcher.com/documentation/spamFreeAccount.jsp) and check out our service so you can verify our claims yourself. 
+
+= Behavior Analysis =
+
+As a second line of defense to our CAPTCHA service is our Behavior Analysis service that analyzes the user's behavior and returns a score that indicates how likely it is that the user is a spammer. This score, coupled with the user's answer to the CAPTCHA, is what is used to determine whether the session should be passed, moderated, or trashed.
 
 == Installation ==
 
@@ -31,10 +47,13 @@ To install in WordPress MU (Forced Activation/Site-Wide):
 
 == Requirements ==
 
-* You need a [free SpamCaptcher account](https://www.spamcaptcher.com "SpamCaptcher Registration")
+* You need a [free SpamCaptcher account](https://www.spamcaptcher.com)
 * You need to be running PHP 5 or later
 
 == ChangeLog ==
+
+= Version 1.0.1 =
+* Updated the README file with correct links and the Tested up to value.
 
 = Version 1.0.0 =
 * First release
