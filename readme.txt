@@ -11,7 +11,7 @@ Integrates SpamCaptcher anti-spam methods with WordPress including comment and r
 
 = What is SpamCaptcher? =
 
-The [SpamCaptcher](https://www.spamcaptcher.com/) plugin helps keep spam off your site by integrating the CAPTCHA, Spam-Free Account and Behavior Analysis technologies of SpamCaptcher on your site. Combining these free technologies you can keep spammers away while keeping your end users happy. Below is a brief description of each of the services we offer:
+The [SpamCaptcher](http://www.spamcaptcher.com/) plugin helps keep spam off your site by integrating the CAPTCHA, Spam-Free Account and Behavior Analysis technologies of SpamCaptcher on your site. Combining these free technologies you can keep spammers away while keeping your end users happy. Below is a brief description of each of the services we offer:
 
 = CAPTCHA =
 
@@ -23,7 +23,7 @@ We also highly recommend that all users get a Spam-Free Account in order to secu
 
 = Spam-Free Account =
 
-Our Spam-Free Account service is one that benefits both website owners and end users. For website owners it provides a way to fight off Human CAPTCHA Solvers which we believe will also provide a long term solution to spam. For end users it provides a way to not have to solve CAPTCHAs so long as the user is not a spammer. For those of you that think we are making some pretty strong claims ... you are correct, and we invite you to read our [Spam-Free Account documentation](https://www.spamcaptcher.com/documentation/spamFreeAccount.jsp) and check out our service so you can verify our claims yourself. 
+Our Spam-Free Account service is one that benefits both website owners and end users. For website owners it provides a way to fight off Human CAPTCHA Solvers which we believe will also provide a long term solution to spam. For end users it provides a way to not have to solve CAPTCHAs so long as the user is not a spammer. For those of you that think we are making some pretty strong claims ... you are correct, and we invite you to read our [Spam-Free Account documentation](http://www.spamcaptcher.com/documentation/spamFreeAccount.jsp) and check out our service so you can verify our claims yourself. 
 
 = Behavior Analysis =
 
@@ -35,7 +35,7 @@ To install in regular WordPress and [WordPress MultiSite](http://codex.wordpress
 
 1. Upload the `wp-spamcaptcher` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the `Plugins` menu in WordPress
-3. Get your free SpamCaptcher account [here](https://www.spamcaptcher.com)
+3. Get your free SpamCaptcher account [here](http://www.spamcaptcher.com)
 
 To install in WordPress MU (Forced Activation/Site-Wide):
 
@@ -43,11 +43,11 @@ To install in WordPress MU (Forced Activation/Site-Wide):
 2. **Move** the `wp-spamcaptcher.php` file out of the `wp-spamcaptcher` folder so that it is in `/wp-content/mu-plugins`
 3. Now you should have `/wp-content/mu-plugins/wp-spamcaptcher.php` and `/wp-content/mu-plugins/wp-spamcaptcher/`
 4. Go to the administrator menu and then go to **Site Admin > SpamCaptcher**
-5. Get your free SpamCaptcher account [here](https://www.spamcaptcher.com)
+5. Get your free SpamCaptcher account [here](http://www.spamcaptcher.com)
 
 == Requirements ==
 
-* You need a [free SpamCaptcher account](https://www.spamcaptcher.com)
+* You need a [free SpamCaptcher account](http://www.spamcaptcher.com)
 * You need to be running PHP 5 or later
 
 == ChangeLog ==
@@ -74,7 +74,11 @@ Absolutely. To keep the cost of spamming low spammers use automated bots to push
 
 = What is this Spam-Free Account thing all about? =
 
-Our Spam-Free Account service is designed to fight back against Human CAPTCHA Solvers while rewarding legitimate users. It fights off the Human CAPTCHA Solvers by increasing the cost to them to spam. It rewards legitimate users by allowing them to bypass CAPTCHAs as long as they don't spam. For more detailed information check out our [Spam-Free Account documentation] (https://www.spamcaptcher.com/documentation/spamFreeAccountDetails.jsp#details_spam_free_account).
+Our Spam-Free Account service is designed to fight back against Human CAPTCHA Solvers while rewarding legitimate users. It fights off the Human CAPTCHA Solvers by increasing the cost to them to spam. It rewards legitimate users by allowing them to bypass CAPTCHAs as long as they don't spam. For more detailed information check out our [Spam-Free Account documentation] (http://www.spamcaptcher.com/documentation/spamFreeAccountDetails.jsp#details_spam_free_account).
+
+= Do you have any other documentation? =
+
+[Yes we do](http://www.spamcaptcher.com/documentation)
 
 == Demo ==
-You can see a live demo of our CAPTCHA and Spam-Free Account services on our website's [demo page](https://www.spamcaptcher.com/captcha/Demo.action).
+You can see a live demo of our CAPTCHA and Spam-Free Account services on our website's [demo page](http://www.spamcaptcher.com/captcha/Demo.action).
