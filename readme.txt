@@ -74,7 +74,7 @@ Absolutely. To keep the cost of spamming low spammers use automated bots to push
 
 = What is this Spam-Free Account thing all about? =
 
-Our Spam-Free Account service is designed to fight back against Human CAPTCHA Solvers while rewarding legitimate users. It fights off the Human CAPTCHA Solvers by increasing the cost to them to spam. It rewards legitimate users by allowing them to bypass CAPTCHAs as long as they don't spam. For more detailed information check out our [Spam-Free Account documentation] (http://www.spamcaptcher.com/documentation/spamFreeAccountDetails.jsp#details_spam_free_account).
+Our Spam-Free Account service is designed to fight back against Human CAPTCHA Solvers while rewarding legitimate users. It fights off the Human CAPTCHA Solvers by increasing the cost to them to spam. It rewards legitimate users by allowing them to bypass CAPTCHAs as long as they don't spam. For more detailed information check out our [Spam-Free Account documentation](http://www.spamcaptcher.com/documentation/spamFreeAccountDetails.jsp#details_spam_free_account).
 
 = Do you have any other documentation? =
 
