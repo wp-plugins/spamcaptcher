@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: WP-SpamCaptcher
-Plugin URI: http://www.spamcaptcher.com/wp-spamcaptcher/
+Plugin Name: SpamCaptcher
+Plugin URI: http://www.spamcaptcher.com/documentation/wordPress.jsp
 Description: Integrates SpamCaptcher anti-spam solutions with wordpress
-Version: 1.0.1
+Version: 1.0.2
 Author: SpamCaptcher
 Email: support@spamcaptcher.com
 Author URI: http://www.spamcaptcher.com

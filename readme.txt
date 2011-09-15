@@ -1,11 +1,11 @@
 === Plugin Name ===
 Contributors: SpamCaptcher
-Tags: comments, registration, spamcaptcher, antispam, captcha, wpmu, spam, spam-free account, behavior analysis, gravity forms, form, protection, security
+Tags: comments, registration, spamcaptcher, antispam, captcha, spam, spam-free account, behavior analysis, gravity forms, form, protection, security
 Requires at least: 2.7
 Tested up to: 3.2.1
 Stable tag: 1.0.1
 
-Integrates SpamCaptcher anti-spam methods with WordPress including comment and registration spam protection. WPMU Compatible.
+Integrates SpamCaptcher anti-spam methods with WordPress including comment and registration spam protection.
 
 == Description ==
 
@@ -31,19 +31,25 @@ As a second line of defense to our CAPTCHA service is our Behavior Analysis serv
 
 == Installation ==
 
-To install in regular WordPress and [WordPress MultiSite](http://codex.wordpress.org/Create_A_Network):
+To install via the WordPress Installer:
 
-1. Upload the `wp-spamcaptcher` folder to the `/wp-content/plugins/` directory
-2. Activate the plugin through the `Plugins` menu in WordPress
-3. Get your free SpamCaptcher account [here](http://www.spamcaptcher.com)
+1. Click Install Now under the SpamCaptcher plugin.
+2. Click OK on the confirmation popup.
+3. Click Activate Plugin.
+4. Click the Settings link under SpamCaptcher on the Plugins page of your WordPress Dashboard.
+5. Enter your Account ID and Account Private Key.
+6. Click Save SpamCaptcher Changes.
 
-To install in WordPress MU (Forced Activation/Site-Wide):
+To install from a zipped up SpamCaptcher bundle:
 
-1. Upload the `wp-spamcaptcher` folder to the `/wp-content/mu-plugins` directory
-2. **Move** the `wp-spamcaptcher.php` file out of the `wp-spamcaptcher` folder so that it is in `/wp-content/mu-plugins`
-3. Now you should have `/wp-content/mu-plugins/wp-spamcaptcher.php` and `/wp-content/mu-plugins/wp-spamcaptcher/`
-4. Go to the administrator menu and then go to **Site Admin > SpamCaptcher**
-5. Get your free SpamCaptcher account [here](http://www.spamcaptcher.com)
+1. Unzip the zip file to a temporary folder.
+2. Upload the `spamcaptcher` folder to the `/wp-content/plugins` directory.
+3. Go to the Plugins page of your WordPress Dashboard.
+4. Click the Activate link under SpamCaptcher.
+5. Click the Settings link under SpamCaptcher.
+6. Enter your Account ID and Account Private Key.
+7. Click Save SpamCaptcher Changes.
+8. Delete the unzipped contents from the temporary folder from step 1.
 
 == Requirements ==
 

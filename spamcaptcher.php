@@ -230,8 +230,8 @@ REGISTRATION;
         }
         
         function create_error_notice($message, $anchor = '') {
-            $options_url = admin_url('options-general.php?page=wp-spamcaptcher/spamcaptcher.php') . $anchor;
-            $error_message = sprintf(__($message . ' <a href="%s" title="WP-SpamCaptcher Options">Fix this</a>', 'spamcaptcher'), $options_url);
+            $options_url = admin_url('options-general.php?page=spamcaptcher/spamcaptcher.php') . $anchor;
+            $error_message = sprintf(__($message . ' <a href="%s" title="SpamCaptcher Options">Fix this</a>', 'spamcaptcher'), $options_url);
             
             echo '<div class="error"><p><strong>' . $error_message . '</strong></p></div>';
         }
@@ -562,7 +562,7 @@ JS;
             if ($file == plugin_basename($this->path_to_plugin_directory() . '/wp-spamcaptcher.php')) {
                $settings_title = __('Settings for this Plugin', 'spamcaptcher');
                $settings = __('Settings', 'spamcaptcher');
-               $settings_link = '<a href="options-general.php?page=wp-spamcaptcher/spamcaptcher.php" title="' . $settings_title . '">' . $settings . '</a>';
+               $settings_link = '<a href="options-general.php?page=spamcaptcher/spamcaptcher.php" title="' . $settings_title . '">' . $settings . '</a>';
                array_unshift($links, $settings_link);
             }
             
@@ -573,12 +573,12 @@ JS;
         function add_settings_page() {
             // add the options page
             if ($this->environment == Environment::WordPressMU && $this->is_authority())
-                add_submenu_page('wpmu-admin.php', 'WP-SpamCaptcher', 'WP-SpamCaptcher', 'manage_options', __FILE__, array(&$this, 'show_settings_page'));
+                add_submenu_page('wpmu-admin.php', 'SpamCaptcher', 'SpamCaptcher', 'manage_options', __FILE__, array(&$this, 'show_settings_page'));
 
             if ($this->environment == Environment::WordPressMS && $this->is_authority())
-                add_submenu_page('ms-admin.php', 'WP-SpamCaptcher', 'WP-SpamCaptcher', 'manage_options', __FILE__, array(&$this, 'show_settings_page'));
+                add_submenu_page('ms-admin.php', 'SpamCaptcher', 'SpamCaptcher', 'manage_options', __FILE__, array(&$this, 'show_settings_page'));
             
-            add_options_page('WP-SpamCaptcher', 'WP-SpamCaptcher', 'manage_options', __FILE__, array(&$this, 'show_settings_page'));
+            add_options_page('SpamCaptcher', 'SpamCaptcher', 'manage_options', __FILE__, array(&$this, 'show_settings_page'));
         }
         
         function show_settings_page() {
