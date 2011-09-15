@@ -3,7 +3,7 @@ Contributors: SpamCaptcher
 Tags: comments, registration, spamcaptcher, antispam, captcha, spam, spam-free account, behavior analysis, gravity forms, form, protection, security
 Requires at least: 2.7
 Tested up to: 3.2.1
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 
 Integrates SpamCaptcher anti-spam methods with WordPress including comment and registration spam protection.
 
@@ -57,6 +57,11 @@ To install from a zipped up SpamCaptcher bundle:
 * You need to be running PHP 5 or later
 
 == ChangeLog ==
+
+= Version 1.0.2 =
+* Fixed issue of invalid permissions to view the settings page.
+* Removed references to WPMU as that needs to be further tested.
+* Updated installation notes.
 
 = Version 1.0.1 =
 * Updated the README file with correct links and the Tested up to value.
