@@ -27,7 +27,7 @@ Our Spam-Free Account service is one that benefits both website owners and end u
 
 = Behavior Analysis =
 
-As a second line of defense to our CAPTCHA service is our Behavior Analysis service that analyzes the user's behavior and returns a score that indicates how likely it is that the user is a spammer. This score, coupled with the user's answer to the CAPTCHA, is what is used to determine whether the session should be passed, moderated, or trashed.
+As a second line of defense to our CAPTCHA is our Behavior Analysis service that analyzes the user's behavior and returns a score that indicates how likely it is that the user is a spammer. This score, coupled with the user's answer to the CAPTCHA, is what is used to determine whether the session should be passed, moderated, or trashed.
 
 == Installation ==
 
