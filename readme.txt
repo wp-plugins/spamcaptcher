@@ -3,7 +3,7 @@ Contributors: SpamCaptcher
 Tags: comments, registration, spamcaptcher, antispam, captcha, spam, spam-free account, behavior analysis, gravity forms, form, protection, security
 Requires at least: 2.7
 Tested up to: 3.2.1
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 
 Integrates SpamCaptcher anti-spam methods with WordPress including comment and registration spam protection.
 

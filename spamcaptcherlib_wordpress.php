@@ -24,7 +24,17 @@ class SpamCaptcher
 	/**
 	 *
 	 */
-    private $sessionID = 0;
+	private $languageOrFrameworkID = 2;
+	
+	/**
+	 *
+	 */
+	private $languageOrFrameworkVersion = "1.0.3";
+	
+	/**
+	 *
+	 */
+    private $sessionID;
 	
 	/**
 	 *
@@ -50,6 +60,11 @@ class SpamCaptcher
 	 *
 	 */
     private $MAX_MODERATE_SCORE = 99;
+	
+	/**
+	 *
+	 */
+    private $timeToCompleteForm = 300;
 	
 	/**
 	 *
@@ -118,6 +133,14 @@ class SpamCaptcher
 		return $this->customerSessionID;
 	}
 	
+	public function setSessionID($sessID){
+		$this->sessionID = $sessID;
+	}
+
+	public function getSessionID(){
+		return $this->sessionID;
+	}
+	
 	public function getSettings(){
 		return $this->initSettings;
 	}
@@ -147,29 +170,38 @@ class SpamCaptcher
 	}
    
    public function validate($args){
-		$strURL = $this->baseURL . "validate?k=" . $this->accountID . "&pwd=" . $this->accountPassword . "&" . $this->spamcaptcher_qsencode($args);
-		$xmlresponse = file_get_contents($strURL);
-		$checkServer = false;
-		if ($xmlresponse){
-			$doc = DOMDocument::loadXML($xmlresponse);
-			if ($doc){
-				$isValidResponse = $doc->getElementsByTagName('isValid');
-				if (!($isValidResponse && $isValidResponse->item(0))){
-					$checkServer = true;
+		$answerSet = false;
+		if (!(isset($this->sessionID))){
+			if ($this->serverDownShouldModerate()){
+				$this->recommendedAction = self::$SHOULD_MODERATE;
+			}else{
+				$this->recommendedAction = self::$SHOULD_DELETE;
+			}
+			$answerSet = true;
+		}else{
+			$args['lofi'] = $this->languageOrFrameworkID;
+			$args['lofv'] = $this->languageOrFrameworkVersion;
+			$strURL = $this->baseURL . "validate?k=" . $this->accountID . "&pwd=" . $this->accountPassword . "&" . $this->spamcaptcher_qsencode($args);
+			$xmlresponse = file_get_contents($strURL);
+			if ($xmlresponse){
+				$doc = DOMDocument::loadXML($xmlresponse);
+				if ($doc){
+					$isValidResponse = $doc->getElementsByTagName('isValid');
+					if (!($isValidResponse && $isValidResponse->item(0))){
+						$this->recommendedAction = self::$SHOULD_MODERATE;
+					}else{
+						$this->spamScore = $doc->getElementsByTagName('spamScore')->item(0)->nodeValue;
+						$this->isValid = $this->strToBoolean($doc->getElementsByTagName('isValid')->item(0)->nodeValue);
+					}
 				}else{
-					$this->spamScore = $doc->getElementsByTagName('spamScore')->item(0)->nodeValue;
-					$this->isValid = $this->strToBoolean($doc->getElementsByTagName('isValid')->item(0)->nodeValue);
+					$this->recommendedAction = self::$SHOULD_MODERATE;
 				}
 			}else{
-				$checkServer = true;
+				//couldn't access the server, moderate the session
+				$this->recommendedAction = self::$SHOULD_MODERATE;
 			}
-		}else{
-			//couldn't access the server, moderate the session
-			$this->recommendedAction = self::$SHOULD_MODERATE;
 		}
-		if ($checkServer){
-			//check to see if the SpamCaptcher server is up
-		}else{
+		if (!$answerSet){
 			if (!$this->isValid){
 				//CAPTCHA was NOT solved correctly
 				$this->recommendedAction = self::$SHOULD_DELETE;
@@ -194,6 +226,8 @@ class SpamCaptcher
 			'c' => $csess_id,
 			'k' => $this->accountID,
 			'pwd' => $this->accountPassword,
+			'lofi' => $this->languageOrFrameworkID,
+			'lofv' => $this->languageOrFrameworkVersion,
 			'f' => "$flagType"
 		);
 		$strArgs = $this->spamcaptcher_qsencode($args);
@@ -227,6 +261,42 @@ class SpamCaptcher
 			$req=substr($req,0,strlen($req)-1);
 		}
 		return $req;
+	}
+	
+	public function serverDownShouldModerate(){
+		$args = array (
+			'k' => $this->accountID,
+			'pwd' => $this->accountPassword,
+			'lofi' => $this->languageOrFrameworkID,
+			'lofv' => $this->languageOrFrameworkVersion
+		);
+		$strArgs = $this->spamcaptcher_qsencode($args);
+		$strURL = $this->baseURL . "checkStatus?" . $this->spamcaptcher_qsencode($args);
+		$xmlresponse = file_get_contents($strURL);
+		$retVal = false;
+		if ($xmlresponse){
+			$doc = DOMDocument::loadXML($xmlresponse);
+			if ($doc){
+				$isRunningResponse = $doc->getElementsByTagName('isRunning');
+				if (!($isRunningResponse && $isRunningResponse->item(0))){
+					$retVal = true;
+				}else{
+					$retVal = !($this->strToBoolean($isRunningResponse->item(0)->nodeValue));
+					if (!$retVal){
+						$secondsSinceLastDowntime = $doc->getElementsByTagName('SecondsSinceLastDowntime')->item(0)->nodeValue;
+						$secondsSinceLastRestart = $doc->getElementsByTagName('SecondsSinceLastRestart')->item(0)->nodeValue;
+						if ($this->timeToCompleteForm > $secondsSinceLastRestart && $this->timeToCompleteForm < $secondsSinceLastDowntime){
+							$retVal = true;
+						}
+					}
+				}
+			}else{
+				$retVal = true;
+			}
+		}else{
+			$retVal = true;
+		}
+		return $retVal;
 	}
 	
 	private function strToBoolean($value) {
@@ -264,6 +334,7 @@ function spamcaptcher_validate($forceSpamFreeAccount = false, $allowSpamFreeAcco
 	);
 	$sc_obj = new SpamCaptcher();
 	$sc_obj->setCustomerSessionID($csessID);
+	$sc_obj->setSessionID($sessionID);
 	return $sc_obj->validate($args);
 }
 

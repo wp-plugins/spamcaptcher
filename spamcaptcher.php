@@ -344,10 +344,6 @@ REGISTRATION;
 		
 		function check_spamcaptcher_answer($csessID = null, $forceSpamFreeAccount = false, $allowSpamFreeAccount = true){
 			$result = SpamCaptcher::$SHOULD_DELETE;
-			if (empty($_POST['spamCaptcherSessionID']) || $_POST['spamCaptcherSessionID'] == '') {
-				$sc_obj = new SpamCaptcher($this->options['account_id'],$this->options['account_password']);
-				return $sc_obj;
-			}
 			$sessionID = null;
 			$answer = null;
 			if (isset($_POST["spamCaptcherSessionID"]) && $_POST["spamCaptcherSessionID"]){
@@ -365,6 +361,7 @@ REGISTRATION;
 				'spamCaptcherAnswer' => $answer
 			);
 			$sc_obj = new SpamCaptcher($this->options['account_id'],$this->options['account_password']);
+			$sc_obj->setSessionID($sessionID);
 			$sc_obj->setCustomerSessionID($csessID);
 			$sc_obj->setMinModerationScore($this->options['min_moderation_score']);
 			$sc_obj->setMaxModerationScore($this->options['max_moderation_score']);

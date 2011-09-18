@@ -1,5 +1,5 @@
 /* SpamCaptcher styling */
-.recaptcha-error {
+.spamcaptcher-error {
    font-size: 1.8em;
    padding-bottom: 8px;
 }
@@ -14,12 +14,12 @@
    vertical-align: middle !important;
 }
 
-.recaptcha-form {
+.spamcaptcher-form {
    margin: auto !important;
    width: 25em !important;
 }
 
-.recaptcha-options td {
+.spamcaptcher-options td {
    vertical-align: top !important;
 }
 
