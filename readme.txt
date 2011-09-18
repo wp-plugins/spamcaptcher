@@ -58,6 +58,9 @@ To install from a zipped up SpamCaptcher bundle:
 
 == ChangeLog ==
 
+= Version 1.0.3 =
+* Fixed logic that dictates whether a session gets a SHOULD_MODERATE or SHOULD_DELETE response when the session ID is not present.
+
 = Version 1.0.2 =
 * Fixed issue of invalid permissions to view the settings page.
 * Removed references to WPMU as that needs to be further tested.
