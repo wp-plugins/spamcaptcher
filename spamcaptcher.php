@@ -66,6 +66,13 @@ if (!class_exists('SpamCaptcherPlugin')) {
                 add_action('comment_post_redirect', array(&$this, 'relative_redirect'), 0, 2);
             }
 			
+			// only register the hook if the user wants spamcaptcher on the login page
+			if ($this->options['show_in_account_login']){
+				add_action('wp_login_failed', array(&$this, 'update_user_invalid_login_info'));
+				add_action('wp_login', array(&$this, 'reset_user_invalid_login_count'), 0, 2);
+				add_action('login_form', array(&$this, 'show_spamcaptcher_in_login_if_necessary'));
+			}
+			
 			// only register the hook if the user wants spamcaptcher on the password reset page
 			if ($this->options['show_in_password_reset']){
 				add_action('lostpassword_form', array(&$this, 'show_spamcaptcher_in_password_reset'));
@@ -101,10 +108,14 @@ if (!class_exists('SpamCaptcherPlugin')) {
                     add_filter('registration_errors', array(&$this, 'validate_spamcaptcher_registration'));
             }
 			
+			// only register the hook if the user wants spamcaptcher on the login page
+			if ($this->options['show_in_account_login']){
+				add_filter( 'authenticate',  array(&$this, 'validate_spamcaptcher_in_login_if_necessary'), 9, 3);
+			}
+			
 			// only register the hook if the user wants spamcaptcher on the password reset page
 			if ($this->options['show_in_password_reset']){
 				add_filter ( 'allow_password_reset',  array(&$this, 'validate_spamcaptcher_password_reset') );
-				//add_filter('login_errors', array(&$this, "show_password_reset_error_message"));
 			}
 			
 			// gravity forms
@@ -131,16 +142,17 @@ if (!class_exists('SpamCaptcherPlugin')) {
            
             if ($old_options) {
                $option_defaults['account_id'] = $old_options['account_id']; // the public key for spamcaptcher
-               $option_defaults['account_password'] = $old_options['account_password']; // the private key for spamcaptcher
+               $option_defaults['account_private_key'] = $old_options['account_private_key']; // the private key for spamcaptcher
 
                // placement
                $option_defaults['show_in_comments'] = $old_options['sc_comments']; // whether or not to show spamcaptcher on the comment post
                $option_defaults['show_in_registration'] = $old_options['sc_registration']; // whether or not to show spamcaptcher on the registration page
 			   $option_defaults['show_in_password_reset'] = $old_options['show_in_password_reset']; //whether or not to show spamcaptcher on the password reset page
+			   $option_defaults['show_in_account_login'] = $old_options['show_in_account_login']; //whether or not to show spamcaptcher on the login page
 			   
-			   // Spam-Free Account
-			   $option_defaults['comments_force_sfa'] = $old_options['comments_force_sfa'];
-			   $option_defaults['registration_force_sfa'] = $old_options['registration_force_sfa'];
+			   // TrustMe Account
+			   $option_defaults['comments_force_tma'] = $old_options['comments_force_tma'];
+			   $option_defaults['registration_force_tma'] = $old_options['registration_force_tma'];
 			   
                // bypass levels
                $option_defaults['bypass_for_registered_users'] = ($old_options['sc_bypass'] == "on") ? 1 : 0; // whether to skip spamcaptchers for registered users
@@ -154,22 +166,32 @@ if (!class_exists('SpamCaptcherPlugin')) {
                $option_defaults['incorrect_response_error'] = $old_options['error_incorrect']; // message for incorrect CAPTCHA response
 			   
 			   // misc
+				if ($this->is_ssl_capable()){
+					$options_defaults['use_ssl'] = $old_options['use_ssl'];
+					$options_defaults['ssl_capable'] = 1;
+				}else{
+					$options_defaults['use_ssl'] = 0;
+					$options_defaults['ssl_capable'] = 0;
+				}
 			   $options_defaults['bind_to_form'] = $old_options['bind_to_form'];
 			   $options_defaults['toggle_opacity'] = $old_options['toggle_opacity'];
 			   $option_defaults['min_moderation_score'] = $old_options['min_moderation_score'];
 			   $option_defaults['max_moderation_score'] = $old_options['max_moderation_score'];
+			   $options_defaults['account_login_failed_attempt_count'] = $old_options['account_login_failed_attempt_count'];
+			   $options_defaults['account_login_reset_time'] = $old_options['account_login_reset_time'];
             }
            
             else {
                // keys
                $option_defaults['account_id'] = ''; // the account's id for spamcaptcher
-               $option_defaults['account_password'] = ''; // the account's password for spamcaptcher
+               $option_defaults['account_private_key'] = ''; // the account's password for spamcaptcher
 
                // placement
                $option_defaults['show_in_comments'] = 1; // whether or not to show spamcaptcher on the comment post
                $option_defaults['show_in_registration'] = 1; // whether or not to show spamcaptcher on the registration page
 			   $option_defaults['show_in_password_reset'] = 1; //whether or not to show spamcaptcher on the password reset page
-
+			   $option_defaults['show_in_account_login'] = 1; //whether or not to show spamcaptcher on the login page
+			   
                // bypass levels
                $option_defaults['bypass_for_registered_users'] = 1; // whether to skip spamcaptchers for registered users
                $option_defaults['minimum_bypass_level'] = 'read'; // who doesn't have to do the spamcaptcher (should be a valid WordPress capability slug)
@@ -178,14 +200,18 @@ if (!class_exists('SpamCaptcherPlugin')) {
                $option_defaults['incorrect_response_error'] = '<span style=\'color:red\'><strong>ERROR</strong>: Incorrect SpamCaptcher response. Please try again.</span>'; 
 			   
 			   // misc
+			   $options_defaults['ssl_capable'] = ($this->is_ssl_capable() ? 1 : 0);
+			   $options_defaults['use_ssl'] = $options_defaults['ssl_capable'];
 			   $options_defaults['bind_to_form'] = 0;
 			   $options_defaults['toggle_opacity'] = 0;
 			   $option_defaults['min_moderation_score'] = 35;
 			   $option_defaults['max_moderation_score'] = 99;
+			   $options_defaults['account_login_failed_attempt_count'] = 3;
+			   $options_defaults['account_login_reset_time'] = 600;
 			   
-			   // Spam-Free Account
-			   $option_defaults['comments_force_sfa'] = 0;
-			   $option_defaults['registration_force_sfa'] = 0;
+			   // TrustMe Account
+			   $option_defaults['comments_force_tma'] = 0;
+			   $option_defaults['registration_force_tma'] = 0;
             }
             
             // add the option based on what environment we're in
@@ -226,7 +252,7 @@ REGISTRATION;
         }
         
         function keys_missing() {
-            return (empty($this->options['account_id']) || empty($this->options['account_password']));
+            return (empty($this->options['account_id']) || empty($this->options['account_private_key']));
         }
         
         function create_error_notice($message, $anchor = '') {
@@ -253,7 +279,7 @@ REGISTRATION;
         function validate_options($input) {
 
             $validated['account_id'] = trim($input['account_id']);
-            $validated['account_password'] = trim($input['account_password']);
+            $validated['account_private_key'] = trim($input['account_private_key']);
             
             $validated['show_in_comments'] = ($input['show_in_comments'] == 1 ? 1 : 0);
             $validated['bypass_for_registered_users'] = ($input['bypass_for_registered_users'] == 1 ? 1: 0);
@@ -271,8 +297,8 @@ REGISTRATION;
 			$validated['toggle_opacity'] = $input['toggle_opacity'];
 			$validated['bind_to_form'] = $input['bind_to_form'];
 			
-			$validated['registration_force_sfa'] = $input['registration_force_sfa'];
-			$validated['comments_force_sfa'] = $input['comments_force_sfa'];
+			$validated['registration_force_tma'] = $input['registration_force_tma'];
+			$validated['comments_force_tma'] = $input['comments_force_tma'];
 			
 			$minVal = (int) $input['min_moderation_score'];
 			$maxVal = (int) $input['max_moderation_score'];
@@ -283,13 +309,34 @@ REGISTRATION;
 				$validated['min_moderation_score'] = 35;
 				$validated['max_moderation_score'] = 99;
 			}
+			
+			$validated['show_in_account_login'] = ($input['show_in_account_login'] == 1 ? 1 : 0);
+			$invalidLoginCount = (int) $input['account_login_failed_attempt_count'];
+			if (is_int($invalidLoginCount) && $invalidLoginCount > 0){
+				$validated['account_login_failed_attempt_count'] = $invalidLoginCount;
+			}else{
+				$validated['account_login_failed_attempt_count'] = 3;
+			}
+			$invalidLoginResetTime = (int) $input['account_login_reset_time'];
+			if (is_int($invalidLoginResetTime) && $invalidLoginResetTime > 0){
+				$validated['account_login_reset_time'] = $invalidLoginResetTime;
+			}else{
+				$validated['account_login_reset_time'] = 600;
+			}
             
+			$validated['ssl_capable'] = $this->is_ssl_capable();
+			$validated['use_ssl'] = $input['use_ssl'];
+			// can't use SSL if it's not supported
+			if (!$validated['ssl_capable']){
+				$validated['use_ssl'] = 0;
+			}
+			
             return $validated;
         }
         
         // display spamcaptcher
         function show_spamcaptcher_in_registration($errors) {
-			echo $this->show_spamcaptcher_captcha($this->options['registration_force_sfa']);
+			echo $this->show_spamcaptcher_captcha($this->options['registration_force_tma']);
         }
 		
 		function show_spamcaptcher_in_password_reset($errors = null){
@@ -300,16 +347,16 @@ REGISTRATION;
 			if (empty($_POST['spamCaptcherSessionID']) || $_POST['spamCaptcherSessionID'] == '') {
                 return false;
             }
-			$sc_obj = $this->check_spamcaptcher_answer(null, false, false);
+			$sc_obj = $this->check_spamcaptcher_answer(null, false, false, SpamCaptcher::$USER_ACTION_FORGOT_PASSWORD);
 			$recommendation = $sc_obj->getRecommendedAction();
 			if($recommendation == SpamCaptcher::$SHOULD_PASS){
 				return true;
 			}
-			return false;
+			return new WP_Error('spamcaptcher_invalid_captcha_password_reset', '<strong>ERROR</strong>: Invalid CAPTCHA solution. To help protect your account from hacking a valid CAPTCHA solution is required to reset your password.');
 		}
         
         function validate_spamcaptcher_registration($errors) {
-			$sc_obj = $this->check_spamcaptcher_answer(null, $this->options['registration_force_sfa'], true);
+			$sc_obj = $this->check_spamcaptcher_answer(null, $this->options['registration_force_tma'], true, SpamCaptcher::$USER_ACTION_ACCOUNT_REGISTRATION);
 			$recommendation = $sc_obj->getRecommendedAction();
 			if (!$sc_obj->getIsValid()){
 				$errors->add('captcha_wrong', $this->options['incorrect_response_error']);
@@ -329,7 +376,7 @@ REGISTRATION;
                 if (isset($_POST['blog_id']) || isset($_POST['blogname']))
                     return $result;
                     
-				$sc_obj = $this->check_spamcaptcher_answer(null, $this->options['registration_force_sfa'], true);
+				$sc_obj = $this->check_spamcaptcher_answer(null, $this->options['registration_force_tma'], true, SpamCaptcher::$USER_ACTION_ACCOUNT_REGISTRATION);
 				$recommendation = $sc_obj->getRecommendedAction();
 				if (!$sc_obj->getIsValid()){
 					$errors->add('captcha_wrong', $this->options['incorrect_response_error']);
@@ -339,10 +386,10 @@ REGISTRATION;
 				}
 						
 					return $result;
-				}
+			}
         }
 		
-		function check_spamcaptcher_answer($csessID = null, $forceSpamFreeAccount = false, $allowSpamFreeAccount = true){
+		function check_spamcaptcher_answer($csessID = null, $forceTrustMeAccount = false, $allowTrustMeAccount = true, $userAction = ""){
 			$result = SpamCaptcher::$SHOULD_DELETE;
 			$sessionID = null;
 			$answer = null;
@@ -356,20 +403,22 @@ REGISTRATION;
 			$args = array (
 				'ip' => $_SERVER['REMOTE_ADDR'],
 				'id' => $sessionID,
-				'fsfa' => ($forceSpamFreeAccount ? "1" : "0"),
-				'asfa' => ($allowSpamFreeAccount ? "1" : "0"),
+				'ftma' => ($forceTrustMeAccount ? "1" : "0"),
+				'atma' => ($allowTrustMeAccount ? "1" : "0"),
+				'ogtmas' => "1",
 				'spamCaptcherAnswer' => $answer
 			);
-			$sc_obj = new SpamCaptcher($this->options['account_id'],$this->options['account_password']);
+			$sc_obj = new SpamCaptcher($this->options['account_id'],$this->options['account_private_key']);
+			$sc_obj->setUseSSL(($this->options['use_ssl'] == "1" ? true : false));
 			$sc_obj->setSessionID($sessionID);
 			$sc_obj->setCustomerSessionID($csessID);
 			$sc_obj->setMinModerationScore($this->options['min_moderation_score']);
 			$sc_obj->setMaxModerationScore($this->options['max_moderation_score']);
+			$sc_obj->setUserAction($userAction);
 			$sc_obj->validate($args);
 			return $sc_obj;
 		}
         
-        // utility methods
         function hash_comment($id) {
             define ("spamcaptcher_WP_HASH_SALT", "b7e0638d85f5d7f3694f68e944136d62"); //TODO: change the salt
             
@@ -379,21 +428,25 @@ REGISTRATION;
                 return md5(spamcaptcher_WP_HASH_SALT . $this->options['private_key'] . $id);
         }
         
-		function show_spamcaptcher_captcha($forceSFA = false, $allowSFA = true){
-			return $this->show_spamcaptcher_captcha_all_options($forceSFA, $allowSFA, $this->options['toggle_opacity'], $this->options['bind_to_form']);
+		function is_ssl_capable(){
+			return is_numeric(OPENSSL_VERSION_NUMBER);
 		}
 		
-		function show_spamcaptcher_captcha_all_options($forceSFA = false, $allowSFA = true, $toggleOpacity = false, $bindToForm = false){
-			$sc_obj = new SpamCaptcher($this->options['account_id'],$this->options['account_password']);
-			$strForceSFA = "false";
+		function show_spamcaptcher_captcha($forceTMA = false, $allowTMA = true){
+			return $this->show_spamcaptcher_captcha_all_options($forceTMA, $allowTMA, $this->options['toggle_opacity'], $this->options['bind_to_form']);
+		}
+		
+		function show_spamcaptcher_captcha_all_options($forceTMA = false, $allowTMA = true, $toggleOpacity = false, $bindToForm = false, $anchor = null){
+			$sc_obj = new SpamCaptcher($this->options['account_id'],$this->options['account_private_key']);
+			$strForceTMA = "false";
 			$strToggleOpacity = "false";
 			$strBindToForm = "false";
-			$strAllowSFA = "false";
-			if ($forceSFA){
-				$strForceSFA = "true";
+			$strAllowTMA = "false";
+			if ($forceTMA){
+				$strForceTMA = "true";
 			}
-			if ($allowSFA){
-				$strAllowSFA = "true";
+			if ($allowTMA){
+				$strAllowTMA = "true";
 			}
 			if ($toggleOpacity){
 				$strToggleOpacity = "true";
@@ -401,7 +454,9 @@ REGISTRATION;
 			if ($bindToForm){
 				$strBindToForm = "true";
 			}
-			$sc_obj->setSettings("{theme: '" . $this->options['registration_theme'] . "',forceSpamFreeAccount:$strForceSFA,allowSpamFreeAccount:$strAllowSFA,toggleOpacity:$strToggleOpacity,bindToForm:$strBindToForm}");
+			$sc_obj->setForceTrustMeAccount($forceTMA);
+			$sc_obj->setAllowTrustMeAccount($allowTMA);
+			$sc_obj->setSettings("{forceTrustMeAccount:$strForceTMA,allowTrustMeAccount:$strAllowTMA,toggleOpacity:$strToggleOpacity,bindToForm:$strBindToForm,overwriteGlobalTrustMeAccountSettings:true" . (isset($anchor) ? ",anchor:'$anchor'" : "") . "}");
 			return $sc_obj->getCaptcha();
 		}
 		
@@ -429,7 +484,7 @@ REGISTRATION;
 					</noscript>
 COMMENT_FORM;
 				
-                echo $this->show_spamcaptcher_captcha($this->options['comments_force_sfa']) . $comment_string;
+                echo $this->show_spamcaptcher_captcha($this->options['comments_force_tma']) . $comment_string;
            }
         }
 		
@@ -467,7 +522,7 @@ JS;
                 // do not check trackbacks/pingbacks
                 if ($comment_data['comment_type'] == '') {
                     
-                    $sc_obj = $this->check_spamcaptcher_answer(null, $this->options['comments_force_sfa'], true);
+                    $sc_obj = $this->check_spamcaptcher_answer(null, $this->options['comments_force_tma'], true, SpamCaptcher::$USER_ACTION_LEAVE_COMMENT);
 					$response = $sc_obj->getRecommendedAction();
                     
                     if ($response == SpamCaptcher::$SHOULD_PASS){
@@ -498,10 +553,96 @@ JS;
 		function flag_comment_for_spam($comment_id){
 			$sc_sess_id = get_comment_meta($comment_id, 'spamcaptcher_session_id', true);
 			if ($sc_sess_id){
-				$sc_obj = new SpamCaptcher($this->options['account_id'],$this->options['account_password']);
+				$sc_obj = new SpamCaptcher($this->options['account_id'],$this->options['account_private_key']);
 				$sc_obj->flag($sc_sess_id, null, 3);
 			}
 			return true; //for right now just let things go regardless if we didn't successfully flag the session
+		}
+		
+		function set_user_invalid_login_info($userID, $invalidLoginCount, $lastInvalidLogin){
+			if (!is_null($invalidLoginCount)){
+				update_user_meta($userID, 'spamCaptcherInvalidLoginCount', $invalidLoginCount);
+			}
+			if (!is_null($lastInvalidLogin)){
+				update_user_meta($userID, 'spamCaptcherLastInvalidLogin', $lastInvalidLogin);
+			}
+		}
+		
+		function update_user_invalid_login_info($username){
+			$user = get_user_by('login',$username);
+			if (!$user){
+				return;
+			}
+			$num_of_failed_login_attempts = get_user_meta($user->ID, 'spamCaptcherInvalidLoginCount',true);
+			if (is_null($num_of_failed_login_attempts)){
+				$num_of_failed_login_attempts = 0;
+			}
+			$num_of_failed_login_attempts = intval($num_of_failed_login_attempts) + 1;
+			$this->set_user_invalid_login_info($user->ID, $num_of_failed_login_attempts, time());
+		}
+		
+		function reset_user_invalid_login_count($username, $user){
+			$this->set_user_invalid_login_info($username, 0, null);
+		}
+		
+		function does_user_login_require_captcha($username){
+			$retVal = false;
+			$user = get_user_by('login',$username);
+			if (!$user || !$this->options['show_in_account_login']){
+				return false;
+			}
+			$last_failed_login = intval(get_user_meta($user->ID, 'spamCaptcherLastInvalidLogin',true));
+			if (is_null($last_failed_login) || !is_int($last_failed_login)){
+				return false;
+			}
+			$time_since_last_failed_login = time() - $last_failed_login;
+			if ($time_since_last_failed_login >= $this->options['account_login_reset_time']){
+				return false;
+			}
+			$num_of_failed_login_attempts = get_user_meta($user->ID, 'spamCaptcherInvalidLoginCount',true);
+			if ($num_of_failed_login_attempts > $this->options['account_login_failed_attempt_count']){
+				$retVal = true;
+			}
+			return $retVal;
+		}
+		
+		function show_spamcaptcher_in_login_if_necessary(){
+			$username = isset($_POST['log']) ? stripslashes($_POST['log']) : '';
+			if ($this->does_user_login_require_captcha($username)){
+				echo $this->show_spamcaptcher_captcha(false, false);
+			}
+		}
+		
+		function validate_spamcaptcher_in_login_if_necessary($user, $username, $password){
+			remove_filter('authenticate', 'wp_authenticate_username_password', 20, 3);
+			$userdata = get_user_by('login',$username);
+			if ($this->does_user_login_require_captcha($username)){
+				if (!(isset($_POST["spamCaptcherSessionID"]) && $_POST["spamCaptcherSessionID"])){
+					return new WP_Error('spamcaptcher_invalid_login_captcha', '<strong>ERROR</strong>: This account requires a CAPTCHA due to too many invalid login attempts.');
+				}
+				$sc_obj = $this->check_spamcaptcher_answer(null, false, false, SpamCaptcher::$USER_ACTION_ACCOUNT_LOGIN);
+				$recommendation = $sc_obj->getRecommendedAction();
+				if($recommendation == SpamCaptcher::$SHOULD_DELETE){
+					return new WP_Error('spamcaptcher_invalid_login_captcha', '<strong>ERROR</strong>: Incorrect CAPTCHA solution. This account requires a CAPTCHA due to too many invalid login attempts.');
+				}
+			}
+
+			$userdata = apply_filters('wp_authenticate_user', $userdata, $password);
+			if ( !isset($userdata->ID)){
+				return new WP_Error('', '');
+			}
+			if ( is_wp_error($userdata) ) {
+				return $userdata;
+			}
+			
+			if ( !wp_check_password($password, $userdata->user_pass, $userdata->ID) ) {
+				return new WP_Error('incorrect_password', sprintf(__('<strong>ERROR</strong>: Incorrect password. <a href="%s" title="Password Lost and Found">Lost your password</a>?'), site_url('wp-login.php?action=lostpassword', 'login')));
+			}
+
+			$user =  new WP_User($userdata->ID);
+			$this->reset_user_invalid_login_count($user, $username);
+			
+			return $user;
 		}
 		
         function relative_redirect($location, $comment) {
@@ -624,13 +765,13 @@ JS;
 				</li>
 				<li class="spamcaptcher field_setting">
 					<label for="field_admin_label">
-						<?php _e("Spam-Free Account Settings", "gravityforms"); ?>
+						<?php _e("TrustMe Account Settings", "gravityforms"); ?>
 					</label>
-					<input type="checkbox" id="allow_spam_free_account" onclick="SetFieldProperty('allowSpamFreeAccount', this.checked);spamcaptcher_allow_sfa_checkbox_clicked(this.checked);" /> Allow Spam-Free Account
-					<?php gform_tooltip("allow_spam_free_account") ?>
+					<input type="checkbox" id="allow_trust_me_account" onclick="SetFieldProperty('allowTrustMeAccount', this.checked);spamcaptcher_allow_tma_checkbox_clicked(this.checked);" /> Allow TrustMe Account
+					<?php gform_tooltip("allow_trust_me_account") ?>
 					<br />
-					<input type="checkbox" id="force_spam_free_account" onclick="SetFieldProperty('forceSpamFreeAccount', this.checked);" /> Force Spam-Free Account
-					<?php gform_tooltip("force_spam_free_account") ?>
+					<input type="checkbox" id="force_trust_me_account" onclick="SetFieldProperty('forceTrustMeAccount', this.checked);" /> Force TrustMe Account
+					<?php gform_tooltip("force_trust_me_account") ?>
 				</li>
 				<?php
 			}
@@ -641,6 +782,50 @@ JS;
 			//create settings on position 50 (right after Admin Label)
 			if($position == 50){
 				?>
+				<script type="text/javascript">
+					function spamcaptcher_changed_trigger_checkbox_dropdown(val){
+						SetFieldProperty('spamcaptcher_trigger_checkbox', val);
+						var div_area = jQuery("#spamcaptcher_custom_checkbox_area");
+						if (val == "spamcaptcher_custom_trigger"){
+							div_area.show();
+						}else{
+							div_area.hide();
+						}
+					}
+				</script>
+				<li class="spamcaptcher field_setting">
+					<label for="field_admin_label">
+						<?php _e("Trigger Checkbox", "gravityforms"); ?>
+					</label>
+					<select id="spamcaptcher_trigger_checkbox_dropdown" onchange="spamcaptcher_changed_trigger_checkbox_dropdown(jQuery(this).find('option:selected').val());">
+						<option value="spamcaptcher_option_not_selectable" disabled="disabled">Pre-Defined</option>
+						<option value="spamcaptcher_default_trigger">Default</option>
+						<option value="spamcaptcher_custom_trigger">Custom</option>
+					<?php 
+							require_once(WP_PLUGIN_DIR . "/gravityforms/forms_model.php");
+							$form = RGFormsModel::get_form_meta($form_id);
+							foreach($form["fields"] as $field){
+								if ($field["type"] == "checkbox"){
+									echo "<option value=\"spamcaptcher_option_not_selectable\" disabled=\"disabled\">" . $field["label"] . "</option>"; 
+									foreach ($field["inputs"] as $checkbox){
+										// TODO: figure out if name field for checkbox can be something other than input_<id value>
+										echo "<option value=\"input_" . $checkbox["id"] . "\">" . $checkbox["label"] . "</option>";
+									}
+							}
+						}
+					?>
+					</select>
+					<?php gform_tooltip("spamcaptcher_checkbox_trigger") ?>
+					<br />
+					<div id="spamcaptcher_custom_checkbox_area" style="display:none;">
+						<label for="field_admin_label">
+							<br />
+							<?php _e("Custom Checkbox", "gravityforms"); ?>
+						</label>
+						<input type="text" size="35" id="spamcaptcher_custom_checkbox_text" onkeyup="SetFieldProperty('spamcaptcher_custom_checkbox_text', this.value);"/>
+						<?php gform_tooltip("spamcaptcher_custom_checkbox_text") ?>
+					</div>
+				</li>
 				<li class="spamcaptcher field_setting">
 					<label for="field_admin_label">
 						<?php _e("Miscellaneous", "gravityforms"); ?>
@@ -659,9 +844,9 @@ JS;
 		function gform_init_defaults($form){
 			foreach($form["fields"] as &$field){
 				if($field["type"] == "spamcaptcher"){
-					if (!isset($field["allowSpamFreeAccount"])){
-						$field["allowSpamFreeAccount"] = true;
-						$field["forceSpamFreeAccount"] = false;
+					if (!isset($field["allowTrustMeAccount"])){
+						$field["allowTrustMeAccount"] = true;
+						$field["forceTrustMeAccount"] = false;
 					}
 					break;
 				}
@@ -675,18 +860,24 @@ JS;
 				//adding setting to fields of type "text"
 				fieldSettings["spamcaptcher"] += ", .spamcaptcher";
 				
-				function spamcaptcher_allow_sfa_checkbox_clicked(isChecked){
-					jQuery("#force_spam_free_account").attr("disabled", !isChecked);
+				function spamcaptcher_allow_tma_checkbox_clicked(isChecked){
+					jQuery("#force_trust_me_account").attr("disabled", !isChecked);
 					if (!isChecked){
-						jQuery("#force_spam_free_account").attr("checked", false);
+						jQuery("#force_trust_me_account").attr("checked", false);
 					}
 				}
 				
 				//binding to the load field settings event to initialize the fields
 				jQuery(document).bind("gform_load_field_settings", function(event, field, form){
-					jQuery("#allow_spam_free_account").attr("checked", field["allowSpamFreeAccount"] == true || typeof field["allowSpamFreeAccount"] != "boolean");
-					jQuery("#force_spam_free_account").attr("checked", field["forceSpamFreeAccount"] == true);
-					spamcaptcher_allow_sfa_checkbox_clicked(jQuery("#allow_spam_free_account").attr("checked"));
+					jQuery("#allow_trust_me_account").attr("checked", field["allowTrustMeAccount"] == true || typeof field["allowTrustMeAccount"] != "boolean");
+					jQuery("#force_trust_me_account").attr("checked", field["forceTrustMeAccount"] == true);
+					spamcaptcher_allow_tma_checkbox_clicked(jQuery("#allow_trust_me_account").attr("checked"));
+					jQuery("#spamcaptcher_trigger_checkbox_dropdown").val(field["spamcaptcher_trigger_checkbox"]).attr('selected', 'selected');
+					SetFieldProperty('spamcaptcher_trigger_checkbox', jQuery("#spamcaptcher_trigger_checkbox_dropdown").find('option:selected').val());
+					spamcaptcher_changed_trigger_checkbox_dropdown(field["spamcaptcher_trigger_checkbox"]);
+					jQuery("#spamcaptcher_custom_checkbox_text").val(field["spamcaptcher_custom_checkbox_text"]);
+					jQuery("#spamcaptcher_bind_to_form").attr("checked", field["spamcaptcher_bindtoform"] == true);
+					jQuery("#spamcaptcher_toggle_opacity").attr("checked", field["spamcaptcher_toggleopacity"] == true);
 				});
 				
 			</script>
@@ -694,8 +885,10 @@ JS;
 		}
 		
 		function gform_tooltips($tooltips){
-		   $tooltips["allow_spam_free_account"] = "<h6>Allow Spam-Free Account</h6>Check this box to allow a user to authenticate the CAPTCHA session with a Spam-Free Account.";
-		   $tooltips["force_spam_free_account"] = "<h6>Force Spam-Free Account</h6>Check this box to force a user to authenticate the CAPTCHA session with a Spam-Free Account.";
+		   $tooltips["allow_trust_me_account"] = "<h6>Allow TrustMe Account</h6>Check this box to allow a user to authenticate the CAPTCHA session with a TrustMe Account.";
+		   $tooltips["force_trust_me_account"] = "<h6>Force TrustMe Account</h6>Check this box to force a user to authenticate the CAPTCHA session with a TrustMe Account.";
+		   $tooltips["spamcaptcher_checkbox_trigger"] = "<h6>Trigger Checkbox</h6>The checkbox that will trigger the CAPTCHA to be displayed. You can choose a checkbox on this form or the default one provided by SpamCaptcher.";
+		   $tooltips["spamcaptcher_custom_checkbox_text"] = "<h6>Custom Checkbox</h6>The text that will be displayed as the label for the custom trigger checkbox. Note: You can use HTML markup here but be careful as it is <strong>NOT</strong> escaped.";
 		   $tooltips["spamcaptcher_bind_to_form"] = "<h6>Bind To Form</h6>Check this box to have the CAPTCHA auto verified client side prior to allowing the form to submit. Please note that server side validation will still occur.";
 		   $tooltips["spamcaptcher_toggle_opacity"] = "<h6>Toggle Opacity</h6>Check this box to make the CAPTCHA box become somewhat transparent when the user's mouse cursor leaves the box.";
 		   $tooltips["spamcaptcher_field_label"] = "<h6>Field Label</h6>The field title the user will see for the SpamCaptcher CAPTCHA.";
@@ -721,7 +914,11 @@ JS;
 						$input = "To use SpamCaptcher you must enter your Account Keys on the SpamCaptcher Plugin Settings Page.";
 					}
 				}else{
-					$input = $this->show_spamcaptcher_captcha_all_options($field["forceSpamFreeAccount"],$field["allowSpamFreeAccount"],$field["spamcaptcher_toggleopacity"],$field["spamcaptcher_bindtoform"]);
+					if ($field["spamcaptcher_trigger_checkbox"] == "spamcaptcher_custom_trigger"){
+						$input = "<input type=\"checkbox\" name=\"" . $field["spamcaptcher_trigger_checkbox"] . "\" />";
+						$input .= "<label for=\"" . $field["spamcaptcher_trigger_checkbox"] . "\">" . $field["spamcaptcher_custom_checkbox_text"] . "</label>";
+					}
+					$input .= $this->show_spamcaptcher_captcha_all_options($field["forceTrustMeAccount"],$field["allowTrustMeAccount"],$field["spamcaptcher_toggleopacity"],$field["spamcaptcher_bindtoform"], ($field["spamcaptcher_trigger_checkbox"] != "spamcaptcher_default_trigger" ? $field["spamcaptcher_trigger_checkbox"] : null));
 				}
 				return $input;
 			}
@@ -731,7 +928,7 @@ JS;
 			if($validation_result["is_valid"]){
 				foreach($validation_result["form"]["fields"] as &$field){
 					if($field["type"] == "spamcaptcher"){
-						$sc_obj = $this->check_spamcaptcher_answer(null, $field["forceSpamFreeAccount"],$field["allowSpamFreeAccount"]);
+						$sc_obj = $this->check_spamcaptcher_answer(null, $field["forceTrustMeAccount"],$field["allowTrustMeAccount"]);
 						$recommendation = $sc_obj->getRecommendedAction();
 						if($recommendation != SpamCaptcher::$SHOULD_PASS){
 							$validation_result["is_valid"] = false;

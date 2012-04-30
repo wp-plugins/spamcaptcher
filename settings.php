@@ -14,7 +14,6 @@
 		var keyCharacter;
 
 		if (window.event){
-			alert(1);
 			key = window.event.keyCode;
 		}else if (theEvent){
 			key = theEvent.which;
@@ -97,7 +96,7 @@
          <tr valign="top">
             <th scope="row"><?php _e('Account Private Key', 'spamcaptcher'); ?></th>
             <td width="500px">
-               <input type="text" name="spamcaptcher_options[account_password]" size="60" value="<?php echo $this->options['account_password']; ?>" />
+               <input type="text" name="spamcaptcher_options[account_private_key]" size="60" value="<?php echo $this->options['account_private_key']; ?>" />
             </td>
 			<td>
 				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#authentication_account_private_key" target="_blank" title="Help">?</a>
@@ -131,10 +130,10 @@
          </tr>
 		 
 		 <tr valign="top">
-            <th scope="row"><?php _e('Spam-Free Account', 'spamcaptcher'); ?></th>
+            <th scope="row"><?php _e('TrustMe Account', 'spamcaptcher'); ?></th>
             <td width="500px">
-               <input type="checkbox" id ="spamcaptcher_options[comments_force_sfa]" name="spamcaptcher_options[comments_force_sfa]" value="1" <?php checked('1', $this->options['comments_force_sfa']); ?> />
-               <label for="spamcaptcher_options[comments_force_sfa]"><?php _e('Force Spam-Free Account for Comments', 'spamcaptcher'); ?></label>
+               <input type="checkbox" id ="spamcaptcher_options[comments_force_tma]" name="spamcaptcher_options[comments_force_tma]" value="1" <?php checked('1', $this->options['comments_force_tma']); ?> />
+               <label for="spamcaptcher_options[comments_force_tma]"><?php _e('Force TrustMe Account for Comments', 'spamcaptcher'); ?></label>
             </td>
 			<td>
 				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#comments_spam_free_account" target="_blank" title="Help">?</a>
@@ -172,16 +171,51 @@
          </tr>
 		 
 		 <tr valign="top">
-            <th scope="row"><?php _e('Spam-Free Account', 'spamcaptcher'); ?></th>
+            <th scope="row"><?php _e('TrustMe Account', 'spamcaptcher'); ?></th>
             <td width="500px">
-               <input type="checkbox" id ="spamcaptcher_options[registration_force_sfa]" name="spamcaptcher_options[registration_force_sfa]" value="1" <?php checked('1', $this->options['registration_force_sfa']); ?> />
-               <label for="spamcaptcher_options[registration_force_sfa]"><?php _e('Force Spam-Free Account for Registration', 'spamcaptcher'); ?></label>
+               <input type="checkbox" id ="spamcaptcher_options[registration_force_tma]" name="spamcaptcher_options[registration_force_tma]" value="1" <?php checked('1', $this->options['registration_force_tma']); ?> />
+               <label for="spamcaptcher_options[registration_force_tma]"><?php _e('Force TrustMe Account for Registration', 'spamcaptcher'); ?></label>
             </td>
 			<td>
 				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#registration_spam_free_account" target="_blank" title="Help">?</a>
 			</td>
          </tr>
 
+      </table>
+	  
+	  <h3><?php _e('Login Options', 'spamcaptcher'); ?></h3>
+      <table class="form-table">
+         <tr valign="top">
+            <th scope="row"><?php _e('Activation', 'spamcaptcher'); ?></th>
+            <td width="500px">
+               <input type="checkbox" id ="spamcaptcher_options[show_in_account_login]" name="spamcaptcher_options[show_in_account_login]" value="1" <?php checked('1', $this->options['show_in_account_login']); ?> />
+               <label for="spamcaptcher_options[show_in_account_login]"><?php _e('Enable for account login', 'spamcaptcher'); ?></label>
+            </td>
+			<td>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#account_login_activation" target="_blank" title="Help">?</a>
+			</td>
+         </tr>
+		 
+		 <tr valign="top">
+            <th scope="row"><?php _e('Show After', 'spamcaptcher'); ?></th>
+            <td width="500px">
+               <input size="8" type="text" id ="spamcaptcher_options[account_login_failed_attempt_count]" name="spamcaptcher_options[account_login_failed_attempt_count]" value="<?php echo ($this->options['account_login_failed_attempt_count']); ?>" /> invalid login attempts
+            </td>
+			<td>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#account_login_failed_count" target="_blank" title="Help">?</a>
+			</td>
+         </tr>
+		
+		<tr valign="top">
+            <th scope="row"><?php _e('Reset After', 'spamcaptcher'); ?></th>
+            <td width="500px">
+               <input size="8" type="text" id ="spamcaptcher_options[account_login_reset_time]" name="spamcaptcher_options[account_login_reset_time]" value="<?php echo ($this->options['account_login_reset_time']); ?>" /> seconds
+            </td>
+			<td>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#account_login_reset_time" target="_blank" title="Help">?</a>
+			</td>
+         </tr>
+		 
       </table>
 	  
 	  <h3><?php _e('Password Reset Options', 'spamcaptcher'); ?></h3>
@@ -203,6 +237,17 @@
       <table class="form-table">
          
          <tr valign="top">
+            <th scope="row"><?php _e('Security', 'spamcaptcher'); ?></th>
+            <td width="500px">
+              <input type="checkbox" id ="spamcaptcher_options[use_ssl]" name="spamcaptcher_options[use_ssl]" <?php checked('1', $this->options['use_ssl']); ?> value="1"  <?php disabled('0', $this->options['ssl_capable']); ?> />
+               <label for="spamcaptcher_options[use_ssl]"><?php _e('Server to Server SSL', 'spamcaptcher'); ?></label>
+            </td>
+			<td>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#miscellaneous_server_ssl" target="_blank" title="SSL">?</a>
+			</td>
+         </tr>
+		 
+		 <tr valign="top">
             <th scope="row"><?php _e('Form Binding', 'spamcaptcher'); ?></th>
             <td width="500px">
               <input type="checkbox" id ="spamcaptcher_options[bind_to_form]" name="spamcaptcher_options[bind_to_form]" value="1" <?php checked('1', $this->options['bind_to_form']); ?> />
