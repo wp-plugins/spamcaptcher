@@ -773,6 +773,17 @@ JS;
 					<input type="checkbox" id="force_trust_me_account" onclick="SetFieldProperty('forceTrustMeAccount', this.checked);" /> Force TrustMe Account
 					<?php gform_tooltip("force_trust_me_account") ?>
 				</li>
+				<li class="spamcaptcher field_setting">
+					<label for="field_admin_label">
+						<?php _e("Miscellaneous", "gravityforms"); ?>
+					</label>
+					<input type="checkbox" id="spamcaptcher_bind_to_form" onclick="SetFieldProperty('spamcaptcher_bindtoform', this.checked);" /> Bind To Form
+					<?php gform_tooltip("spamcaptcher_bind_to_form") ?>
+					<br />
+					<input type="checkbox" id="spamcaptcher_toggle_opacity" onclick="SetFieldProperty('spamcaptcher_toggleopacity', this.checked);" /> Toggle Opacity
+					<?php gform_tooltip("spamcaptcher_toggle_opacity") ?>
+					<br />
+				</li>
 				<?php
 			}
 		}
@@ -819,17 +830,6 @@ JS;
 						<?php gform_tooltip("spamcaptcher_custom_checkbox_text") ?>
 					</div>
 				</li>
-				<li class="spamcaptcher field_setting">
-					<label for="field_admin_label">
-						<?php _e("Miscellaneous", "gravityforms"); ?>
-					</label>
-					<input type="checkbox" id="spamcaptcher_bind_to_form" onclick="SetFieldProperty('spamcaptcher_bindtoform', this.checked);" /> Bind To Form
-					<?php gform_tooltip("spamcaptcher_bind_to_form") ?>
-					<br />
-					<input type="checkbox" id="spamcaptcher_toggle_opacity" onclick="SetFieldProperty('spamcaptcher_toggleopacity', this.checked);" /> Toggle Opacity
-					<?php gform_tooltip("spamcaptcher_toggle_opacity") ?>
-					<br />
-				</li>
 				<script type="text/javascript">
 					function spamcaptcher_changed_trigger_checkbox_dropdown(val){
 						spamcaptcher_show_hide_custom_checkbox_area(val);
@@ -867,6 +867,7 @@ JS;
 						$field["allowTrustMeAccount"] = true;
 						$field["forceTrustMeAccount"] = false;
 					}
+					$field["noDuplicates"] = true;
 					break;
 				}
 			}
@@ -888,15 +889,17 @@ JS;
 				
 				//binding to the load field settings event to initialize the fields
 				jQuery(document).bind("gform_load_field_settings", function(event, field, form){
-					jQuery("#allow_trust_me_account").attr("checked", field["allowTrustMeAccount"] == true || typeof field["allowTrustMeAccount"] != "boolean");
-					jQuery("#force_trust_me_account").attr("checked", field["forceTrustMeAccount"] == true);
-					spamcaptcher_allow_tma_checkbox_clicked(jQuery("#allow_trust_me_account").attr("checked"));
-					jQuery("#spamcaptcher_trigger_checkbox_dropdown").val(field["spamcaptcher_trigger_checkbox"]).attr('selected', 'selected');
-					spamcaptcher_show_hide_custom_checkbox_area(field["spamcaptcher_trigger_checkbox"]);
-					SetFieldProperty('spamcaptcher_trigger_checkbox', jQuery("#spamcaptcher_trigger_checkbox_dropdown").find('option:selected').val());
-					jQuery("#spamcaptcher_custom_checkbox_text").val(field["spamcaptcher_custom_checkbox_text"]);
-					jQuery("#spamcaptcher_bind_to_form").attr("checked", field["spamcaptcher_bindtoform"] == true);
-					jQuery("#spamcaptcher_toggle_opacity").attr("checked", field["spamcaptcher_toggleopacity"] == true);
+					if (field["type"] == "spamcaptcher"){
+						jQuery("#allow_trust_me_account").attr("checked", field["allowTrustMeAccount"] == true || typeof field["allowTrustMeAccount"] != "boolean");
+						jQuery("#force_trust_me_account").attr("checked", field["forceTrustMeAccount"] == true);
+						spamcaptcher_allow_tma_checkbox_clicked(jQuery("#allow_trust_me_account").attr("checked"));
+						jQuery("#spamcaptcher_trigger_checkbox_dropdown").val(field["spamcaptcher_trigger_checkbox"]).attr('selected', 'selected');
+						spamcaptcher_show_hide_custom_checkbox_area(field["spamcaptcher_trigger_checkbox"]);
+						SetFieldProperty('spamcaptcher_trigger_checkbox', jQuery("#spamcaptcher_trigger_checkbox_dropdown").find('option:selected').val());
+						jQuery("#spamcaptcher_custom_checkbox_text").val(field["spamcaptcher_custom_checkbox_text"]);
+						jQuery("#spamcaptcher_bind_to_form").attr("checked", field["spamcaptcher_bindtoform"] == true);
+						jQuery("#spamcaptcher_toggle_opacity").attr("checked", field["spamcaptcher_toggleopacity"] == true);
+					}
 				});
 				
 			</script>
@@ -918,8 +921,7 @@ JS;
 		 
 			foreach($field_groups as &$group){
 				if($group["name"] == "advanced_fields"){
-					$group["fields"][] = array("class"=>"button", "value" => __("SpamCaptcher", "gravityforms"), "onclick" => "StartAddField('spamcaptcher');");
-					//$group["fields"][] = array("class"=>"button", "value" => __("SpamCaptcher", "gravityforms"), "onclick" => "spamcaptcher_exists();");
+					$group["fields"][] = array("class"=>"button", "value" => __("SpamCaptcher", "gravityforms"), "onclick" => "if (GetFieldsByType(['spamcaptcher']).length > 0){alert('Only one SpamCaptcher field can be added to the form.');return false;}StartAddField('spamcaptcher');");
 					break;
 				}
 			}
@@ -954,7 +956,7 @@ JS;
 							$spamcaptcher_tmp_checkbox_text = $checkbox_arr[$spamcaptcher_tmp_checkbox_val];
 						}
 					}
-					return "<div class='ginput_container'><input id='spamcaptcher_preview_checkbox' type='checkbox' /><label style='margin-left: 4px; padding:0!important; width: auto; line-height: 1.5; vertical-align: top;' for='spamcaptcher_preview_checkbox'>" . $spamcaptcher_tmp_checkbox_text . "</label></div>";
+					return "<div class='ginput_container'><input id='spamcaptcher_preview_checkbox' type='checkbox' /><label style='margin-left: 4px; padding:0!important; width: auto; line-height: 1.5; vertical-align: top;' for='spamcaptcher_preview_checkbox'>" . $spamcaptcher_tmp_checkbox_text . "</label></div><script type='text/javascript'>jQuery('#spamcaptcher_preview_checkbox').closest('li').find('a.field_duplicate_icon').remove();</script>";
 				}
 			}else{
 				if ($field["type"] == "spamcaptcher"){
