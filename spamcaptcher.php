@@ -782,34 +782,27 @@ JS;
 			//create settings on position 50 (right after Admin Label)
 			if($position == 50){
 				?>
-				<script type="text/javascript">
-					function spamcaptcher_changed_trigger_checkbox_dropdown(val){
-						SetFieldProperty('spamcaptcher_trigger_checkbox', val);
-						var div_area = jQuery("#spamcaptcher_custom_checkbox_area");
-						if (val == "spamcaptcher_custom_trigger"){
-							div_area.show();
-						}else{
-							div_area.hide();
-						}
-					}
-				</script>
 				<li class="spamcaptcher field_setting">
 					<label for="field_admin_label">
 						<?php _e("Trigger Checkbox", "gravityforms"); ?>
 					</label>
 					<select id="spamcaptcher_trigger_checkbox_dropdown" onchange="spamcaptcher_changed_trigger_checkbox_dropdown(jQuery(this).find('option:selected').val());">
-						<option value="spamcaptcher_option_not_selectable" disabled="disabled">Pre-Defined</option>
+						<option value="spamcaptcher_option_not_selectable" disabled="disabled">-- Pre-Defined --</option>
 						<option value="spamcaptcher_default_trigger">Default</option>
 						<option value="spamcaptcher_custom_trigger">Custom</option>
 						<?php 
 							require_once(WP_PLUGIN_DIR . "/gravityforms/forms_model.php");
 							$form = RGFormsModel::get_form_meta($form_id);
-							foreach($form["fields"] as $field){
-								if ($field["type"] == "checkbox"){
-									echo "<option value=\"spamcaptcher_option_not_selectable\" disabled=\"disabled\">" . $field["label"] . "</option>"; 
-									foreach ($field["inputs"] as $checkbox){
-										// TODO: figure out if name field for checkbox can be something other than input_<id value>
-										echo "<option value=\"input_" . $checkbox["id"] . "\">" . $checkbox["label"] . "</option>";
+							if ($form_id > 0){
+								$checkbox_arr = array();
+								foreach($form["fields"] as $field){
+									if ($field["type"] == "checkbox"){
+										echo "<option value=\"spamcaptcher_option_not_selectable\" disabled=\"disabled\">-- " . $field["label"] . " --</option>"; 
+										foreach ($field["inputs"] as $checkbox){
+											// TODO: figure out if name field for checkbox can be something other than input_<id value>
+											echo "<option value=\"input_" . $checkbox["id"] . "\">" . $checkbox["label"] . "</option>";
+											$checkbox_arr["input_" . $checkbox["id"]] = $checkbox["label"];
+										}
 									}
 								}
 							}
@@ -822,7 +815,7 @@ JS;
 							<br />
 							<?php _e("Custom Checkbox", "gravityforms"); ?>
 						</label>
-						<input type="text" size="35" id="spamcaptcher_custom_checkbox_text" onkeyup="SetFieldProperty('spamcaptcher_custom_checkbox_text', this.value);"/>
+						<input type="text" size="35" id="spamcaptcher_custom_checkbox_text" onkeyup="spamcaptcher_update_preview(this.value);SetFieldProperty('spamcaptcher_custom_checkbox_text', this.value);"/>
 						<?php gform_tooltip("spamcaptcher_custom_checkbox_text") ?>
 					</div>
 				</li>
@@ -837,6 +830,32 @@ JS;
 					<?php gform_tooltip("spamcaptcher_toggle_opacity") ?>
 					<br />
 				</li>
+				<script type="text/javascript">
+					function spamcaptcher_changed_trigger_checkbox_dropdown(val){
+						spamcaptcher_show_hide_custom_checkbox_area(val);
+						var checkbox_text = jQuery("#spamcaptcher_trigger_checkbox_dropdown option:selected").text();
+						if (val == "spamcaptcher_default_trigger"){
+							checkbox_text = "I certify that I am human";
+						}else if (val == "spamcaptcher_custom_trigger"){
+							checkbox_text = jQuery("#spamcaptcher_custom_checkbox_text").val();
+						}
+						spamcaptcher_update_preview(checkbox_text);
+						SetFieldProperty('spamcaptcher_trigger_checkbox', val);
+					}
+					
+					function spamcaptcher_show_hide_custom_checkbox_area(val){
+						var div_area = jQuery("#spamcaptcher_custom_checkbox_area");
+						if (val == "spamcaptcher_custom_trigger"){
+							div_area.show();
+						}else{
+							div_area.hide();
+						}
+					}
+
+					function spamcaptcher_update_preview(label_text){
+						jQuery(".field_selected .ginput_container").html('<input id="spamcaptcher_preview_checkbox" type="checkbox" /><label style="margin-left: 4px; padding:0!important; width: auto; line-height: 1.5; vertical-align: top;" for="spamcaptcher_preview_checkbox">' + label_text + '</label>');
+					}
+				</script>
 				<?php
 			}
 		}
@@ -873,8 +892,8 @@ JS;
 					jQuery("#force_trust_me_account").attr("checked", field["forceTrustMeAccount"] == true);
 					spamcaptcher_allow_tma_checkbox_clicked(jQuery("#allow_trust_me_account").attr("checked"));
 					jQuery("#spamcaptcher_trigger_checkbox_dropdown").val(field["spamcaptcher_trigger_checkbox"]).attr('selected', 'selected');
+					spamcaptcher_show_hide_custom_checkbox_area(field["spamcaptcher_trigger_checkbox"]);
 					SetFieldProperty('spamcaptcher_trigger_checkbox', jQuery("#spamcaptcher_trigger_checkbox_dropdown").find('option:selected').val());
-					spamcaptcher_changed_trigger_checkbox_dropdown(field["spamcaptcher_trigger_checkbox"]);
 					jQuery("#spamcaptcher_custom_checkbox_text").val(field["spamcaptcher_custom_checkbox_text"]);
 					jQuery("#spamcaptcher_bind_to_form").attr("checked", field["spamcaptcher_bindtoform"] == true);
 					jQuery("#spamcaptcher_toggle_opacity").attr("checked", field["spamcaptcher_toggleopacity"] == true);
@@ -900,6 +919,7 @@ JS;
 			foreach($field_groups as &$group){
 				if($group["name"] == "advanced_fields"){
 					$group["fields"][] = array("class"=>"button", "value" => __("SpamCaptcher", "gravityforms"), "onclick" => "StartAddField('spamcaptcher');");
+					//$group["fields"][] = array("class"=>"button", "value" => __("SpamCaptcher", "gravityforms"), "onclick" => "spamcaptcher_exists();");
 					break;
 				}
 			}
@@ -907,20 +927,51 @@ JS;
 		}
 		
 		function gform_add_spamcaptcher_to_form($input, $field, $value, $lead_id, $form_id){
-			if ($field["type"] == "spamcaptcher"){
-				$input = "";
-				if (IS_ADMIN){
-					if ($this->keys_missing()){
-						$input = "To use SpamCaptcher you must enter your Account Keys on the SpamCaptcher Plugin Settings Page.";
+			if (IS_ADMIN){
+				$checkbox_arr = array();
+				require_once(WP_PLUGIN_DIR . "/gravityforms/forms_model.php");
+				$form = RGFormsModel::get_form_meta($form_id);
+				if ($form_id > 0){
+					foreach($form["fields"] as $tmp_field){
+						if ($tmp_field["type"] == "checkbox"){
+							foreach ($tmp_field["inputs"] as $checkbox){
+								$checkbox_arr["input_" . $checkbox["id"]] = $checkbox["label"];
+							}
+						}
 					}
-				}else{
-					if ($field["spamcaptcher_trigger_checkbox"] == "spamcaptcher_custom_trigger"){
-						$input = "<input type=\"checkbox\" name=\"" . $field["spamcaptcher_trigger_checkbox"] . "\" />";
-						$input .= "<label for=\"" . $field["spamcaptcher_trigger_checkbox"] . "\">" . $field["spamcaptcher_custom_checkbox_text"] . "</label>";
-					}
-					$input .= $this->show_spamcaptcher_captcha_all_options($field["forceTrustMeAccount"],$field["allowTrustMeAccount"],$field["spamcaptcher_toggleopacity"],$field["spamcaptcher_bindtoform"], ($field["spamcaptcher_trigger_checkbox"] != "spamcaptcher_default_trigger" ? $field["spamcaptcher_trigger_checkbox"] : null));
 				}
-				return $input;
+				$spamcaptcher_tmp_checkbox_text = "I certify that I am human";
+				if ($field["type"] == "spamcaptcher"){
+					$spamcaptcher_tmp_checkbox_val = $field["spamcaptcher_trigger_checkbox"];
+					if (!isset($field["spamcaptcher_trigger_checkbox"])){
+						$spamcaptcher_tmp_checkbox_text = "I certify that I am human";
+					}else{
+						if ($spamcaptcher_tmp_checkbox_val == "spamcaptcher_custom_trigger"){
+							$spamcaptcher_tmp_checkbox_text = $field["spamcaptcher_custom_checkbox_text"];
+						}elseif ($spamcaptcher_tmp_checkbox_val == "spamcaptcher_default_trigger"){
+							$spamcaptcher_tmp_checkbox_text = "I certify that I am human";
+						}else{
+							$spamcaptcher_tmp_checkbox_text = $checkbox_arr[$spamcaptcher_tmp_checkbox_val];
+						}
+					}
+					return "<div class='ginput_container'><input id='spamcaptcher_preview_checkbox' type='checkbox' /><label style='margin-left: 4px; padding:0!important; width: auto; line-height: 1.5; vertical-align: top;' for='spamcaptcher_preview_checkbox'>" . $spamcaptcher_tmp_checkbox_text . "</label></div>";
+				}
+			}else{
+				if ($field["type"] == "spamcaptcher"){
+					$input = "";
+					if (IS_ADMIN){
+						if ($this->keys_missing()){
+							$input = "To use SpamCaptcher you must enter your Account Keys on the SpamCaptcher Plugin Settings Page.";
+						}
+					}else{
+						if ($field["spamcaptcher_trigger_checkbox"] == "spamcaptcher_custom_trigger"){
+							$input = "<input type=\"checkbox\" name=\"" . $field["spamcaptcher_trigger_checkbox"] . "\" />";
+							$input .= "<label for=\"" . $field["spamcaptcher_trigger_checkbox"] . "\">" . $field["spamcaptcher_custom_checkbox_text"] . "</label>";
+						}
+						$input .= $this->show_spamcaptcher_captcha_all_options($field["forceTrustMeAccount"],$field["allowTrustMeAccount"],$field["spamcaptcher_toggleopacity"],$field["spamcaptcher_bindtoform"], ($field["spamcaptcher_trigger_checkbox"] != "spamcaptcher_default_trigger" ? $field["spamcaptcher_trigger_checkbox"] : null));
+					}
+					return $input;
+				}
 			}
 		}
 		
