@@ -801,7 +801,7 @@ JS;
 						<option value="spamcaptcher_option_not_selectable" disabled="disabled">Pre-Defined</option>
 						<option value="spamcaptcher_default_trigger">Default</option>
 						<option value="spamcaptcher_custom_trigger">Custom</option>
-					<?php 
+						<?php 
 							require_once(WP_PLUGIN_DIR . "/gravityforms/forms_model.php");
 							$form = RGFormsModel::get_form_meta($form_id);
 							foreach($form["fields"] as $field){
@@ -811,9 +811,9 @@ JS;
 										// TODO: figure out if name field for checkbox can be something other than input_<id value>
 										echo "<option value=\"input_" . $checkbox["id"] . "\">" . $checkbox["label"] . "</option>";
 									}
+								}
 							}
-						}
-					?>
+						?>
 					</select>
 					<?php gform_tooltip("spamcaptcher_checkbox_trigger") ?>
 					<br />
@@ -887,7 +887,7 @@ JS;
 		function gform_tooltips($tooltips){
 		   $tooltips["allow_trust_me_account"] = "<h6>Allow TrustMe Account</h6>Check this box to allow a user to authenticate the CAPTCHA session with a TrustMe Account.";
 		   $tooltips["force_trust_me_account"] = "<h6>Force TrustMe Account</h6>Check this box to force a user to authenticate the CAPTCHA session with a TrustMe Account.";
-		   $tooltips["spamcaptcher_checkbox_trigger"] = "<h6>Trigger Checkbox</h6>The checkbox that will trigger the CAPTCHA to be displayed. You can choose a checkbox on this form or the default one provided by SpamCaptcher.";
+		   $tooltips["spamcaptcher_checkbox_trigger"] = "<h6>Trigger Checkbox</h6>The checkbox that will trigger the CAPTCHA to be displayed. You can choose a checkbox on this form, the default one provided by SpamCaptcher or create a custom one.";
 		   $tooltips["spamcaptcher_custom_checkbox_text"] = "<h6>Custom Checkbox</h6>The text that will be displayed as the label for the custom trigger checkbox. Note: You can use HTML markup here but be careful as it is <strong>NOT</strong> escaped.";
 		   $tooltips["spamcaptcher_bind_to_form"] = "<h6>Bind To Form</h6>Check this box to have the CAPTCHA auto verified client side prior to allowing the form to submit. Please note that server side validation will still occur.";
 		   $tooltips["spamcaptcher_toggle_opacity"] = "<h6>Toggle Opacity</h6>Check this box to make the CAPTCHA box become somewhat transparent when the user's mouse cursor leaves the box.";
