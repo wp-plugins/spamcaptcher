@@ -830,6 +830,14 @@ JS;
 						<?php gform_tooltip("spamcaptcher_custom_checkbox_text") ?>
 					</div>
 				</li>
+				<li class="spamcaptcher field_setting">
+					<label for="field_admin_label">
+						<?php _e("Error Message", "gravityforms"); ?>
+					</label>
+					<input type="text" size="35" id="spamcaptcher_error_message" onkeyup="SetFieldProperty('spamcaptcher_error_message', this.value);"/>
+						<?php gform_tooltip("spamcaptcher_error_message") ?>
+					<br />
+				</li>
 				<script type="text/javascript">
 					function spamcaptcher_changed_trigger_checkbox_dropdown(val){
 						spamcaptcher_show_hide_custom_checkbox_area(val);
@@ -899,6 +907,7 @@ JS;
 						jQuery("#spamcaptcher_custom_checkbox_text").val(field["spamcaptcher_custom_checkbox_text"]);
 						jQuery("#spamcaptcher_bind_to_form").attr("checked", field["spamcaptcher_bindtoform"] == true);
 						jQuery("#spamcaptcher_toggle_opacity").attr("checked", field["spamcaptcher_toggleopacity"] == true);
+						jQuery("#spamcaptcher_error_message").val(field["spamcaptcher_error_message"]);
 					}
 				});
 				
@@ -914,6 +923,7 @@ JS;
 		   $tooltips["spamcaptcher_bind_to_form"] = "<h6>Bind To Form</h6>Check this box to have the CAPTCHA auto verified client side prior to allowing the form to submit. Please note that server side validation will still occur.";
 		   $tooltips["spamcaptcher_toggle_opacity"] = "<h6>Toggle Opacity</h6>Check this box to make the CAPTCHA box become somewhat transparent when the user's mouse cursor leaves the box.";
 		   $tooltips["spamcaptcher_field_label"] = "<h6>Field Label</h6>The field title the user will see for the SpamCaptcher CAPTCHA.";
+		   $tooltips["spamcaptcher_error_message"] = "<h6>Error Message</h6>The message to display to the user when an invalid CAPTCHA response has been given. If left blank the error message set in the Settings page of your SpamCaptcher plugin will be used. Note: You can use HTML markup here but be careful as it is <strong>NOT</strong> escaped.";
 		   return $tooltips;
 		}
 		
@@ -986,7 +996,11 @@ JS;
 						if($recommendation != SpamCaptcher::$SHOULD_PASS){
 							$validation_result["is_valid"] = false;
 							$field["failed_validation"] = true;
-							$field["validation_message"] = "Incorrect SpamCaptcher response, please try again.";
+							$validation_message = $field["spamcaptcher_error_message"];
+							if (is_null($validation_message) || trim($validation_message) == ""){
+								$validation_message = $this->options['incorrect_response_error'];
+							}
+							$field["validation_message"] = $validation_message;
 						}
 						break;
 					}
