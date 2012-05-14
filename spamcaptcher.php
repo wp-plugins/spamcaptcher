@@ -784,6 +784,11 @@ JS;
 						jQuery("#spamcaptcher_toggle_opacity").attr("disabled", val);
 					}
 					
+					function spamcaptcher_clicked_use_default_tma_settings_checkbox(val){
+						SetFieldProperty('spamcaptcher_use_default_tma_settings', val);
+						spamcaptcher_show_hide_tma_checkboxes(val);
+					}
+					
 					function spamcaptcher_show_hide_tma_checkboxes(use_default){
 						var div_obj = jQuery("#spamcaptcher_overwrite_tma_checkboxes_area");
 						if (use_default){
@@ -794,17 +799,10 @@ JS;
 					}
 				</script>
 				<li class="spamcaptcher field_setting">
-					<label for="spamcaptcher_field_label">
-						<?php _e("Field Label", "gravityforms"); ?>
-						<?php gform_tooltip("spamcaptcher_field_label") ?>
-					</label>
-					<input type="text" id="spamcaptcher_field_label" size="35" onkeyup="SetFieldLabel(this.value)" />
-				</li>
-				<li class="spamcaptcher field_setting">
 					<label for="field_admin_label">
 						<?php _e("TrustMe Account Settings", "gravityforms"); ?>
 					</label>
-					<input type="checkbox" id="spamcaptcher_use_default_tma_settings" onclick="SetFieldProperty('spamcaptcher_use_default_tma_settings', this.checked);spamcaptcher_show_hide_tma_checkboxes(this.checked);" /> Use My Default Settings
+					<input type="checkbox" id="spamcaptcher_use_default_tma_settings" onclick="spamcaptcher_clicked_use_default_tma_settings_checkbox(this.checked);" /> Use My Default Settings
 					<?php gform_tooltip("spamcaptcher_use_default_tma_settings") ?>
 					<br />
 					<div id="spamcaptcher_overwrite_tma_checkboxes_area">
@@ -937,7 +935,7 @@ JS;
 					}
 
 					function spamcaptcher_update_preview(label_text){
-						jQuery(".field_selected .ginput_container").html('<input readonly="readonly" id="spamcaptcher_preview_checkbox" type="checkbox" /><label style="margin-left: 4px; padding:0!important; width: auto; line-height: 1.5; vertical-align: top;" for="spamcaptcher_preview_checkbox">' + label_text + '</label>');
+						jQuery(".field_selected .ginput_container").html('<input readonly="readonly" disabled="disabled" id="spamcaptcher_preview_checkbox" type="checkbox" /><label style="margin-left: 4px; padding:0!important; width: auto; line-height: 1.5; vertical-align: top;" for="spamcaptcher_preview_checkbox">' + label_text + '</label>');
 					}
 					
 					function spamcaptcher_set_use_target(val){
@@ -968,6 +966,7 @@ JS;
 						$field["forceTrustMeAccount"] = false;
 					}
 					$field["noDuplicates"] = true;
+					$field["label"] = "";
 					break;
 				}
 			}
@@ -988,10 +987,15 @@ JS;
 					}
 				}
 				
+				// initialize default values when adding a new spamcaptcher field
+				function SetDefaultValues_spamcaptcher(field){
+					field.label = "";
+					return field;
+				}
+				
 				//binding to the load field settings event to initialize the fields
 				jQuery(document).bind("gform_load_field_settings", function(event, field, form){
 					if (field["type"] == "spamcaptcher"){
-						jQuery("#spamcaptcher_field_label").val(field["label"]);
 						jQuery("#allow_trust_me_account").attr("checked", field["allowTrustMeAccount"] == true || typeof field["allowTrustMeAccount"] != "boolean");
 						jQuery("#force_trust_me_account").attr("checked", field["forceTrustMeAccount"] == true);
 						spamcaptcher_allow_tma_checkbox_clicked(jQuery("#allow_trust_me_account").attr("checked"));
@@ -1002,6 +1006,10 @@ JS;
 						jQuery("#spamcaptcher_bind_to_form").attr("checked", field["spamcaptcher_bindtoform"] == true);
 						jQuery("#spamcaptcher_toggle_opacity").attr("checked", field["spamcaptcher_toggleopacity"] == true);
 						jQuery("#spamcaptcher_use_global_miscellaneous_options").attr("checked", field["spamcaptcher_use_global_miscellaneous_options"]);
+						jQuery("#spamcaptcher_use_default_tma_settings").attr("checked", field["spamcaptcher_use_default_tma_settings"]);
+						if (field["spamcaptcher_use_default_tma_settings"]){
+							jQuery("#spamcaptcher_overwrite_tma_checkboxes_area").hide();
+						}
 						spamcaptcher_set_use_global_miscellaneous_options(field["spamcaptcher_use_global_miscellaneous_options"]);
 						jQuery("#spamcaptcher_error_message").val(field["spamcaptcher_error_message"]);
 						jQuery("#spamcaptcher_target_value").val(field["spamcaptcher_target_value"]).attr('selected', 'selected');
@@ -1074,7 +1082,7 @@ JS;
 							$spamcaptcher_tmp_checkbox_text = $checkbox_arr[$spamcaptcher_tmp_checkbox_val];
 						}
 					}
-					return "<div class='ginput_container'><input readonly='readonly' id='spamcaptcher_preview_checkbox' type='checkbox' /><label style='margin-left: 4px; padding:0!important; width: auto; line-height: 1.5; vertical-align: top;' for='spamcaptcher_preview_checkbox'>" . $spamcaptcher_tmp_checkbox_text . "</label></div><script type='text/javascript'>jQuery('#spamcaptcher_preview_checkbox').closest('li').find('a.field_duplicate_icon').remove();</script>";
+					return "<div class='ginput_container'><input readonly='readonly' disabled='disabled' id='spamcaptcher_preview_checkbox' type='checkbox' /><label style='margin-left: 4px; padding:0!important; width: auto; line-height: 1.5; vertical-align: top;' for='spamcaptcher_preview_checkbox'>" . $spamcaptcher_tmp_checkbox_text . "</label></div><script type='text/javascript'>jQuery('#spamcaptcher_preview_checkbox').closest('li').find('a.field_duplicate_icon').remove();</script>";
 				}
 			}else{
 				if ($field["type"] == "spamcaptcher"){
