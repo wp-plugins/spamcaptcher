@@ -879,10 +879,41 @@ JS;
 					<label for="field_admin_label">
 						<?php _e("Error Message", "gravityforms"); ?>
 					</label>
-					<input type="text" size="35" id="spamcaptcher_error_message" onkeyup="SetFieldProperty('spamcaptcher_error_message', this.value);"/>
+					<input type="text" id="spamcaptcher_error_message" onkeyup="SetFieldProperty('spamcaptcher_error_message', this.value);" onblur="spamcaptcher_error_msg_change_focus(this, false);" onfocus="spamcaptcher_error_msg_change_focus(this, true);" />
 						<?php gform_tooltip("spamcaptcher_error_message") ?>
 					<br />
 				</li>
+				<li class="spamcaptcher field_setting">
+					<label for="field_admin_label">
+						<?php _e("Target", "gravityforms"); ?>
+					</label>
+					<input type="checkbox" size="35" id="spamcaptcher_target" onclick="spamcaptcher_set_use_target(this.checked);"/>
+					Hide for registered users who can
+						<?php 
+							$capabilities = array (
+								__('all registered users', 'spamcaptcher') => 'read',
+								__('edit posts', 'spamcaptcher') => 'edit_posts',
+								__('publish posts', 'spamcaptcher') => 'publish_posts',
+								__('moderate comments', 'spamcaptcher') => 'moderate_comments',
+								__('activate plugins', 'spamcaptcher') => 'activate_plugins'
+							);
+            
+							echo $this->build_dropdown('spamcaptcher_target_value', $capabilities, $this->options['minimum_bypass_level']);
+							gform_tooltip("spamcaptcher_target");
+						?>
+					<br />
+				</li>
+				<style type="text/css">
+					.spamcaptcher-use-default-err-msg{
+						color:#808080;
+						font-size:9px;
+						width: 50%;
+					}
+					
+					#spamcaptcher_error_message{
+						width: 50%;
+					}
+				</style>
 				<script type="text/javascript">
 					function spamcaptcher_changed_trigger_checkbox_dropdown(val){
 						spamcaptcher_show_hide_custom_checkbox_area(val);
@@ -907,6 +938,22 @@ JS;
 
 					function spamcaptcher_update_preview(label_text){
 						jQuery(".field_selected .ginput_container").html('<input readonly="readonly" id="spamcaptcher_preview_checkbox" type="checkbox" /><label style="margin-left: 4px; padding:0!important; width: auto; line-height: 1.5; vertical-align: top;" for="spamcaptcher_preview_checkbox">' + label_text + '</label>');
+					}
+					
+					function spamcaptcher_set_use_target(val){
+						SetFieldProperty('spamcaptcher_use_target', val);
+					}
+					
+					function spamcaptcher_error_msg_change_focus(obj, focused){
+						obj = jQuery(obj);
+						if (focused){
+							if (obj.hasClass("spamcaptcher-use-default-err-msg")){
+								obj.val("");
+							}
+							obj.removeClass("spamcaptcher-use-default-err-msg");
+						}else if (!obj.val().length){
+							obj.addClass("spamcaptcher-use-default-err-msg").val('<?php echo preg_replace("/'/", "\\'", $this->options['incorrect_response_error']); ?>');
+						}
 					}
 				</script>
 				<?php
@@ -957,6 +1004,12 @@ JS;
 						jQuery("#spamcaptcher_use_global_miscellaneous_options").attr("checked", field["spamcaptcher_use_global_miscellaneous_options"]);
 						spamcaptcher_set_use_global_miscellaneous_options(field["spamcaptcher_use_global_miscellaneous_options"]);
 						jQuery("#spamcaptcher_error_message").val(field["spamcaptcher_error_message"]);
+						jQuery("#spamcaptcher_target_value").val(field["spamcaptcher_target_value"]).attr('selected', 'selected');
+						jQuery("#spamcaptcher_target_value").change( function(){
+							SetFieldProperty('spamcaptcher_target_value', jQuery("#spamcaptcher_target_value option:selected").val());
+						});
+						jQuery("#spamcaptcher_target").attr('checked', field["spamcaptcher_use_target"] === true);
+						spamcaptcher_error_msg_change_focus(jQuery("#spamcaptcher_error_message"), false);
 					}
 				});
 				
@@ -966,15 +1019,16 @@ JS;
 		
 		function gform_tooltips($tooltips){
 		   $tooltips["spamcaptcher_use_default_tma_settings"] = "<h6>Default TrustMe Settings</h6>Check this box to use the TrustMe Account settings for your account on <a href='https://www.spamcaptcher.com' target='_blank'>our site</a>.";
-		   $tooltips["allow_trust_me_account"] = "<h6>Allow TrustMe Account</h6>Check this box to allow a user to authenticate the CAPTCHA session with a TrustMe Account.";
-		   $tooltips["force_trust_me_account"] = "<h6>Force TrustMe Account</h6>Check this box to force a user to authenticate the CAPTCHA session with a TrustMe Account.";
+		   $tooltips["allow_trust_me_account"] = "<h6>Allow TrustMe Account</h6>Check this box to allow the user to authenticate the CAPTCHA session with a TrustMe Account.";
+		   $tooltips["force_trust_me_account"] = "<h6>Force TrustMe Account</h6>Check this box to force the user to authenticate the CAPTCHA session with a TrustMe Account.";
 		   $tooltips["spamcaptcher_checkbox_trigger"] = "<h6>Trigger Checkbox</h6>The checkbox that will trigger the CAPTCHA to be displayed. You can choose a checkbox on this form, the default one provided by SpamCaptcher or create a custom one.";
-		   $tooltips["spamcaptcher_custom_checkbox_text"] = "<h6>Custom Checkbox</h6>The text that will be displayed as the label for the custom trigger checkbox. Note: You can use HTML markup here but be careful as it is <strong>NOT</strong> escaped.";
+		   $tooltips["spamcaptcher_custom_checkbox_text"] = "<h6>Custom Checkbox</h6>The text that will be displayed as the label for the custom trigger checkbox. <p>Note: You can use HTML markup here but be careful as it is <strong>NOT</strong> escaped.</p>";
 		   $tooltips["spamcaptcher_use_global_miscellaneous_options"] = "<h6>Global Miscellaneous Options</h6>Check this box to always have this form's Bind To Form and Toggle Opacity settings synched with the values in the Settings page of your SpamCaptcher plugin.";
 		   $tooltips["spamcaptcher_bind_to_form"] = "<h6>Bind To Form</h6>Check this box to have the CAPTCHA auto verified client side prior to allowing the form to submit. Please note that server side validation will still occur.";
 		   $tooltips["spamcaptcher_toggle_opacity"] = "<h6>Toggle Opacity</h6>Check this box to make the CAPTCHA box become somewhat transparent when the user's mouse cursor leaves the box.";
 		   $tooltips["spamcaptcher_field_label"] = "<h6>Field Label</h6>The field title the user will see for the SpamCaptcher CAPTCHA.";
-		   $tooltips["spamcaptcher_error_message"] = "<h6>Error Message</h6>The message to display to the user when an invalid CAPTCHA response has been given. If left blank the error message set in the Settings page of your SpamCaptcher plugin will be used. Note: You can use HTML markup here but be careful as it is <strong>NOT</strong> escaped.";
+		   $tooltips["spamcaptcher_error_message"] = "<h6>Error Message</h6>The message to display to the user when an invalid CAPTCHA response has been given. If left blank the error message set in the Settings page of your SpamCaptcher plugin will be used. <p>Note: You can use HTML markup here but be careful as it is <strong>NOT</strong> escaped.</p>";
+		   $tooltips["spamcaptcher_target"] = "<h6>Target</h6>Select which group of registered users, if any, do <strong>NOT</strong> have to solve the CAPTCHA. <p>Note: If enabled, you may not see the CAPTCHA show up when you preview this form.</p>";
 		   return $tooltips;
 		}
 		
@@ -991,6 +1045,9 @@ JS;
 		
 		function gform_add_spamcaptcher_to_form($input, $field, $value, $lead_id, $form_id){
 			if (IS_ADMIN){
+				if ($this->keys_missing()){
+					return "To use SpamCaptcher you must enter your Account Keys on the SpamCaptcher Plugin Settings Page.";
+				}
 				$checkbox_arr = array();
 				require_once(WP_PLUGIN_DIR . "/gravityforms/forms_model.php");
 				$form = RGFormsModel::get_form_meta($form_id);
@@ -1021,26 +1078,26 @@ JS;
 				}
 			}else{
 				if ($field["type"] == "spamcaptcher"){
-					$input = "";
-					if (IS_ADMIN){
-						if ($this->keys_missing()){
-							$input = "To use SpamCaptcher you must enter your Account Keys on the SpamCaptcher Plugin Settings Page.";
-						}
-					}else{
-						if ($field["spamcaptcher_trigger_checkbox"] == "spamcaptcher_custom_trigger"){
-							$input = "<input type=\"checkbox\" name=\"" . $field["spamcaptcher_trigger_checkbox"] . "\" />";
-							$input .= "<label for=\"" . $field["spamcaptcher_trigger_checkbox"] . "\">" . $field["spamcaptcher_custom_checkbox_text"] . "</label>";
-						}
-						$toggle_opacity = $field["spamcaptcher_toggleopacity"];
-						$bind_to_form = $field["spamcaptcher_bindtoform"];
-						if ($field["spamcaptcher_use_global_miscellaneous_options"]){
-							$toggle_opacity = $this->options['toggle_opacity'];
-							$bind_to_form = $this->options['bind_to_form'];
-						}
-						$input .= $this->show_spamcaptcher_captcha_all_options($field["forceTrustMeAccount"],$field["allowTrustMeAccount"],$toggle_opacity,$bind_to_form, ($field["spamcaptcher_trigger_checkbox"] != "spamcaptcher_default_trigger" ? $field["spamcaptcher_trigger_checkbox"] : null), !$field["spamcaptcher_use_default_tma_settings"]);
+					// skip the SpamCaptcher display if the minimum capability is met
+					if (isset($field['spamcaptcher_use_target']) && $field['spamcaptcher_use_target'] && isset($field['spamcaptcher_target_value']) && $field['spamcaptcher_target_value'] && current_user_can($field['spamcaptcher_target_value'])){
+						return "";
 					}
-					return $input;
+						
+					$input = "";
+					
+					if ($field["spamcaptcher_trigger_checkbox"] == "spamcaptcher_custom_trigger"){
+						$input = "<input type=\"checkbox\" name=\"" . $field["spamcaptcher_trigger_checkbox"] . "\" />";
+						$input .= "<label for=\"" . $field["spamcaptcher_trigger_checkbox"] . "\">" . $field["spamcaptcher_custom_checkbox_text"] . "</label>";
+					}
+					$toggle_opacity = $field["spamcaptcher_toggleopacity"];
+					$bind_to_form = $field["spamcaptcher_bindtoform"];
+					if ($field["spamcaptcher_use_global_miscellaneous_options"]){
+						$toggle_opacity = $this->options['toggle_opacity'];
+						$bind_to_form = $this->options['bind_to_form'];
+					}
+					$input .= $this->show_spamcaptcher_captcha_all_options($field["forceTrustMeAccount"],$field["allowTrustMeAccount"],$toggle_opacity,$bind_to_form, ($field["spamcaptcher_trigger_checkbox"] != "spamcaptcher_default_trigger" ? $field["spamcaptcher_trigger_checkbox"] : null), !$field["spamcaptcher_use_default_tma_settings"]);
 				}
+				return $input;
 			}
 		}
 		
@@ -1048,6 +1105,10 @@ JS;
 			if($validation_result["is_valid"]){
 				foreach($validation_result["form"]["fields"] as &$field){
 					if($field["type"] == "spamcaptcher"){
+						// skip the SpamCaptcher validation if the minimum capability is met
+						if (isset($field['spamcaptcher_use_target']) && $field['spamcaptcher_use_target'] && isset($field['spamcaptcher_target_value']) && $field['spamcaptcher_target_value'] && current_user_can($field['spamcaptcher_target_value'])){
+							break;
+						}
 						$sc_obj = $this->check_spamcaptcher_answer(null, $field["forceTrustMeAccount"],$field["allowTrustMeAccount"],"",!$field["spamcaptcher_use_default_tma_settings"]);
 						$recommendation = $sc_obj->getRecommendedAction();
 						if($recommendation != SpamCaptcher::$SHOULD_PASS){
