@@ -246,6 +246,10 @@ class SpamCaptcher
 		return $this->recommendedAction;
 	}
 	
+	public function getSpamScore(){
+		return $this->spamScore;
+	}
+	
 	public function getUserAction(){
 		return $this->userAction;
 	}
@@ -298,7 +302,7 @@ class SpamCaptcher
 		}
 		// strip off trailing ampersand
 		$poststring = substr($poststring, 0, -1);
-
+		
 		// open the socket
 		$fp = fsockopen($protocol . $host, $port, $errno, $errstr, $timeout = 30);
 		

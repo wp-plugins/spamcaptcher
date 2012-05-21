@@ -95,6 +95,8 @@ if (!class_exists('SpamCaptcherPlugin')) {
 
 			add_action("gform_field_input", array(&$this, "gform_add_spamcaptcher_to_form"), 10, 5);
 			
+			add_action('gform_post_submission', array(&$this, "gform_update_entry_meta"));
+			
 			//end gravity forms
         }
         
@@ -426,7 +428,7 @@ REGISTRATION;
 		}
         
         function hash_comment($id) {
-            define ("spamcaptcher_WP_HASH_SALT", "b7e0638d85f5d7f3694f68e944136d62"); //TODO: change the salt
+            define ("spamcaptcher_WP_HASH_SALT", "928180d65e6561343cb46b4f5237ca0b51aba962636926a1"); 
             
             if (function_exists('wp_hash'))
                 return wp_hash(spamcaptcher_WP_HASH_SALT . $id);
@@ -1128,11 +1130,19 @@ JS;
 							}
 							$field["validation_message"] = $validation_message;
 						}
+						$this->spamScore = $sc_obj->getSpamScore();
 						break;
 					}
 				}
 			}
 			return $validation_result;
+		}
+		
+		function gform_update_entry_meta($entry){
+			// add the spamCaptcherSessionID value to the meta data
+			// of the entry for future flagging purposes
+			gform_update_meta($entry['id'], 'spamCaptcherSessionID', $_POST["spamCaptcherSessionID"]);
+			gform_update_meta($entry['id'], 'spamCaptcherSpamScore', $this->spamScore);
 		}
         
     } 
