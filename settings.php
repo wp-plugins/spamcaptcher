@@ -246,6 +246,17 @@
 				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#miscellaneous_server_ssl" target="_blank" title="SSL">?</a>
 			</td>
          </tr>
+         
+         <tr valign="top">
+            <th scope="row"><?php _e('Spam Data', 'spamcaptcher'); ?></th>
+            <td width="500px">
+              <input type="checkbox" id ="spamcaptcher_options[send_spam_data]" name="spamcaptcher_options[send_spam_data]" <?php checked('1', $this->options['send_spam_data']); ?> value="1" />
+               <label for="spamcaptcher_options[send_spam_data]"><?php _e('Send Spam to SpamCaptcher', 'spamcaptcher'); ?></label>
+            </td>
+			<td>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#miscellaneous_send_spam" target="_blank" title="Send Spam">?</a>
+			</td>
+         </tr>
 		 
 		 <tr valign="top">
             <th scope="row"><?php _e('Form Binding', 'spamcaptcher'); ?></th>

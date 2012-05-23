@@ -175,6 +175,7 @@ if (!class_exists('SpamCaptcherPlugin')) {
 					$options_defaults['use_ssl'] = 0;
 					$options_defaults['ssl_capable'] = 0;
 				}
+               $options_defaults['send_spam_data'] = $old_options['send_spam_data'];
 			   $options_defaults['bind_to_form'] = $old_options['bind_to_form'];
 			   $options_defaults['toggle_opacity'] = $old_options['toggle_opacity'];
 			   $option_defaults['min_moderation_score'] = $old_options['min_moderation_score'];
@@ -204,6 +205,7 @@ if (!class_exists('SpamCaptcherPlugin')) {
 			   // misc
 			   $options_defaults['ssl_capable'] = ($this->is_ssl_capable() ? 1 : 0);
 			   $options_defaults['use_ssl'] = $options_defaults['ssl_capable'];
+               $options_defaults['send_spam_data'] = 1;
 			   $options_defaults['bind_to_form'] = 0;
 			   $options_defaults['toggle_opacity'] = 0;
 			   $option_defaults['min_moderation_score'] = 35;
@@ -333,6 +335,8 @@ REGISTRATION;
 				$validated['use_ssl'] = 0;
 			}
 			
+            $validated['send_spam_data'] = $input['send_spam_data'];
+            
             return $validated;
         }
         
@@ -564,11 +568,16 @@ JS;
 		
 		function flag_comment_for_spam($comment_id){
 			$sc_sess_id = get_comment_meta($comment_id, 'spamcaptcher_session_id', true);
-			if ($sc_sess_id){
+			if ($sc_sess_id){ // for right now we will just handle comments we provided the CAPTCHA for
 				$sc_obj = new SpamCaptcher($this->options['account_id'],$this->options['account_private_key']);
-				$sc_obj->flag($sc_sess_id, null, 3);
+				$comment_data = '';
+                if ($this->options['send_spam_data']){
+                    $comment_obj = get_comment($comment_id);
+                    $comment_data = $comment_obj->comment_content;
+                }
+                $sc_obj->flag($sc_sess_id, null, SpamCaptcher::$FLAG_FOR_SPAM, $comment_data);
 			}
-			return true; //for right now just let things go regardless if we didn't successfully flag the session
+			return true; 
 		}
 		
 		function set_user_invalid_login_info($userID, $invalidLoginCount, $lastInvalidLogin){
