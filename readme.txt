@@ -63,6 +63,9 @@ To install from a zipped up SpamCaptcher bundle:
 * Added ability to protect against brute-force login attempts.
 * Automatically notifies server of user's action when validating the CAPTCHA request so as to know what part(s) of your website are being attacked by bots.
 * Renamed field from Account Password to Account Private Key.
+* Supports server-to-server SSL during validation and flagging to protect the Account Private Key.
+* Supports sending spam comments for analysis.
+* Improved Gravity Forms extension to be able to choose the triggering checkbox, set the TrustMe Account and miscellaneous settings, and customize the error message per form.
 
 = Version 1.0.3 =
 * Fixed logic that dictates whether a session gets a SHOULD_MODERATE or SHOULD_DELETE response when the session ID is not present.
