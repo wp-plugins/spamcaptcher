@@ -54,7 +54,7 @@ class SpamCaptcher
 	/**
 	 * The language or framework identifier.
 	 */
-	private $languageOrFrameworkID = 'php';
+	private $languageOrFrameworkID = 'wp';
 	
 	/**
 	 * The version of the SpamCaptcher library you are using.
@@ -447,7 +447,7 @@ class SpamCaptcher
 		
 		// close socket
 		fclose($fp); 
-		error_log ("body: $body");
+
 		return $body;
    }
    
