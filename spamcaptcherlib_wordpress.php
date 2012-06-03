@@ -59,7 +59,7 @@ class SpamCaptcher
 	/**
 	 * The version of the SpamCaptcher library you are using.
 	 */
-	private $languageOrFrameworkVersion = "1.1.0";
+	private $languageOrFrameworkVersion = "1.1.1";
 	
 	/**
 	 * The unique identifer for the session.
@@ -385,7 +385,7 @@ class SpamCaptcher
 	 * Returns the HTML code to employ our service (i.e. place our CAPTCHA) on your site.
 	 */
 	public function getCaptcha(){
-		return "<script type=\"text/javascript\">var spamCaptcher ={settings : " . $this->initSettings . "};spamCaptcher.settings.accountID = \"" . $this->accountID . "\";</script><script type=\"text/javascript\" src=\"http" . ($this->useSSL ? "s" : "") . "://api.spamcaptcher.com/initCaptcha.js\"></script><noscript>SpamCaptcher NoScript Session:&nbsp;<input type=\"text\" name=\"spamCaptcherSessionID\" /><br /><iframe height=\"275px\" width=\"500px\" src=\"http" . ($this->useSSL ? "s" : "") . "://api.spamcaptcher.com/noscript/getCaptcha.jsp?k=" . $this->accountID ."&atma=" . ($this->allowTrustMeAccount ? "1" : "0") . "&ftma=" . ($this->forceTrustMeAccount ? "1" : "0") . "&ogtmas=" . ($this->overwriteGlobalTMASettings ? "1" : "0") . "\"><strong>Please upgrade your browser to one that supports iframes or enable JavaScript.</strong></iframe></noscript>";
+		return "<script type=\"text/javascript\">var spamCaptcher ={settings : " . $this->initSettings . "};spamCaptcher.settings.accountID = \"" . $this->accountID . "\";</script><script type=\"text/javascript\" src=\"https://api.spamcaptcher.com/initCaptcha.js\"></script><noscript>SpamCaptcher NoScript Session:&nbsp;<input type=\"text\" name=\"spamCaptcherSessionID\" /><br /><iframe height=\"275px\" width=\"500px\" src=\"https://api.spamcaptcher.com/noscript/getCaptcha.jsp?k=" . $this->accountID ."&atma=" . ($this->allowTrustMeAccount ? "1" : "0") . "&ftma=" . ($this->forceTrustMeAccount ? "1" : "0") . "&ogtmas=" . ($this->overwriteGlobalTMASettings ? "1" : "0") . "\"><strong>Please upgrade your browser to one that supports iframes or enable JavaScript.</strong></iframe></noscript>";
 	}
    
    /**

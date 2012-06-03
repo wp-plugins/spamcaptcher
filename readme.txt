@@ -2,8 +2,8 @@
 Contributors: SpamCaptcher
 Tags: comments, registration, spamcaptcher, antispam, captcha, spam, trustme account, behavior analysis, gravity forms, form, protection, security
 Requires at least: 2.7
-Tested up to: 3.2.1
-Stable tag: 1.1.0
+Tested up to: 3.3.2
+Stable tag: 1.1.1
 
 Integrates SpamCaptcher anti-spam methods with WordPress including comment and registration spam protection.
 
@@ -57,6 +57,9 @@ To install from a zipped up SpamCaptcher bundle:
 * You need to be running PHP 5 or later
 
 == ChangeLog ==
+
+= Version 1.1.1 =
+* Fixed SSL issue.
 
 = Version 1.1.0 =
 * Supports change in naming and interfaces from Spam-Free Account to TrustMe Account.
