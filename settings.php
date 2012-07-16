@@ -136,7 +136,18 @@
                <label for="spamcaptcher_options[comments_force_tma]"><?php _e('Force TrustMe Account for Comments', 'spamcaptcher'); ?></label>
             </td>
 			<td>
-				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#comments_spam_free_account" target="_blank" title="Help">?</a>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#comments_trust_me_account" target="_blank" title="Help">?</a>
+			</td>
+         </tr>
+		 
+		 <tr valign="top">
+            <th scope="row"><?php _e('Proof-of-Work', 'spamcaptcher'); ?></th>
+            <td width="500px">
+               <input type="checkbox" id ="spamcaptcher_options[comments_use_proof_of_work]" name="spamcaptcher_options[comments_use_proof_of_work]" value="1" <?php checked('1', $this->options['comments_use_proof_of_work']); ?> />
+               <label for="spamcaptcher_options[comments_use_proof_of_work]"><?php _e('Use Proof-of-Work', 'spamcaptcher'); ?></label>
+            </td>
+			<td>
+				<a href="https://www.spamcaptcher.com/documentation/wordPress.jsp#comments_proof_of_work" target="_blank" title="Help">?</a>
 			</td>
          </tr>
 		 

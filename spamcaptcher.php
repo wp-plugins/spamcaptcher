@@ -180,6 +180,8 @@ if (!class_exists('SpamCaptcherPlugin')) {
 			   $options_defaults['toggle_opacity'] = $old_options['toggle_opacity'];
 			   $option_defaults['min_moderation_score'] = $old_options['min_moderation_score'];
 			   $option_defaults['max_moderation_score'] = $old_options['max_moderation_score'];
+			   $option_defaults['comments_use_proof_of_work'] = $old_options['comments_use_proof_of_work'];
+			   $option_defaults['comments_proof_of_work_time'] = $old_options['comments_proof_of_work_time'];
 			   $options_defaults['account_login_failed_attempt_count'] = $old_options['account_login_failed_attempt_count'];
 			   $options_defaults['account_login_reset_time'] = $old_options['account_login_reset_time'];
             }
@@ -210,6 +212,8 @@ if (!class_exists('SpamCaptcherPlugin')) {
 			   $options_defaults['toggle_opacity'] = 0;
 			   $option_defaults['min_moderation_score'] = 35;
 			   $option_defaults['max_moderation_score'] = 99;
+			   $option_defaults['comments_use_proof_of_work'] = 0;
+			   $option_defaults['comments_proof_of_work_time'] = 2;
 			   $options_defaults['account_login_failed_attempt_count'] = 3;
 			   $options_defaults['account_login_reset_time'] = 600;
 			   
@@ -300,6 +304,8 @@ REGISTRATION;
 			
 			$validated['toggle_opacity'] = $input['toggle_opacity'];
 			$validated['bind_to_form'] = $input['bind_to_form'];
+			$validated['comments_use_proof_of_work'] = $input['comments_use_proof_of_work'];
+			$validated['comments_proof_of_work_time'] = 2;
 			
 			$validated['registration_force_tma'] = $input['registration_force_tma'];
 			$validated['comments_force_tma'] = $input['comments_force_tma'];
@@ -395,7 +401,7 @@ REGISTRATION;
 			}
         }
 		
-		function check_spamcaptcher_answer($csessID = null, $forceTrustMeAccount = false, $allowTrustMeAccount = true, $userAction = "", $overwrite_gtmas = true, $minModerationScore = null, $maxModerationScore = null){
+		function check_spamcaptcher_answer($csessID = null, $forceTrustMeAccount = false, $allowTrustMeAccount = true, $userAction = "", $overwrite_gtmas = true, $minModerationScore = null, $maxModerationScore = null, $useProofOfWork = false, $proofOfWorkTime = 1){
 			$result = SpamCaptcher::$SHOULD_DELETE;
 			$sessionID = null;
 			$answer = null;
@@ -426,6 +432,8 @@ REGISTRATION;
 			$sc_obj->setCustomerSessionID($csessID);
 			$sc_obj->setMinModerationScore($minModerationScore);
 			$sc_obj->setMaxModerationScore($maxModerationScore);
+			$sc_obj->useProofOfWork($useProofOfWork);
+			$sc_obj->setProofOfWorkTime($proofOfWorkTime);
 			$sc_obj->setUserAction($userAction);
 			$sc_obj->validate($args);
 			return $sc_obj;
@@ -444,17 +452,18 @@ REGISTRATION;
 			return is_numeric(OPENSSL_VERSION_NUMBER);
 		}
 		
-		function show_spamcaptcher_captcha($forceTMA = false, $allowTMA = true){
-			return $this->show_spamcaptcher_captcha_all_options($forceTMA, $allowTMA, $this->options['toggle_opacity'], $this->options['bind_to_form']);
+		function show_spamcaptcher_captcha($forceTMA = false, $allowTMA = true, $useProofOfWork = false, $proofOfWorkTime = 1){
+			return $this->show_spamcaptcher_captcha_all_options($forceTMA, $allowTMA, $this->options['toggle_opacity'], $this->options['bind_to_form'], null, true, $useProofOfWork, $proofOfWorkTime);
 		}
 		
-		function show_spamcaptcher_captcha_all_options($forceTMA = false, $allowTMA = true, $toggleOpacity = false, $bindToForm = false, $anchor = null, $overwrite_gtmas = true){
+		function show_spamcaptcher_captcha_all_options($forceTMA = false, $allowTMA = true, $toggleOpacity = false, $bindToForm = false, $anchor = null, $overwrite_gtmas = true, $useProofOfWork = false, $proofOfWorkTime = 1){
 			$sc_obj = new SpamCaptcher($this->options['account_id'],$this->options['account_private_key']);
 			$strForceTMA = "false";
 			$strToggleOpacity = "false";
 			$strBindToForm = "false";
 			$strAllowTMA = "false";
 			$strOverwriteGTMA = "false";
+			$strUseProofOfWork = "false";
 			if ($forceTMA){
 				$strForceTMA = "true";
 			}
@@ -470,9 +479,12 @@ REGISTRATION;
 			if ($overwrite_gtmas){
 				$strOverwriteGTMA = "true";
 			}
+			if ($useProofOfWork){
+				$strUseProofOfWork = "true";
+			}
 			$sc_obj->setForceTrustMeAccount($forceTMA);
 			$sc_obj->setAllowTrustMeAccount($allowTMA);
-			$sc_obj->setSettings("{forceTrustMeAccount:$strForceTMA,allowTrustMeAccount:$strAllowTMA,toggleOpacity:$strToggleOpacity,bindToForm:$strBindToForm,overwriteGlobalTrustMeAccountSettings:$strOverwriteGTMA" . (isset($anchor) ? ",anchor:'$anchor'" : "") . "}");
+			$sc_obj->setSettings("{forceTrustMeAccount:$strForceTMA,allowTrustMeAccount:$strAllowTMA,toggleOpacity:$strToggleOpacity,bindToForm:$strBindToForm,overwriteGlobalTrustMeAccountSettings:$strOverwriteGTMA" . (isset($anchor) ? ",anchor:'$anchor'" : "") . ",proofOfWork:$strUseProofOfWork,proofOfWorkTime:$proofOfWorkTime}");
 			return $sc_obj->getCaptcha();
 		}
 		
@@ -500,7 +512,7 @@ REGISTRATION;
 					</noscript>
 COMMENT_FORM;
 				
-                echo $this->show_spamcaptcher_captcha($this->options['comments_force_tma']) . $comment_string;
+                echo $this->show_spamcaptcher_captcha($this->options['comments_force_tma'], true, $this->options['comments_use_proof_of_work'], $this->options['comments_proof_of_work_time']) . $comment_string;
            }
         }
 		
@@ -808,6 +820,13 @@ JS;
 							div_obj.show(300);
 						}
 					}
+					
+					function spamcaptcher_clicked_ftma(val){
+						jQuery("#spamcaptcher_use_proof_of_work").attr("disabled", val).attr("checked", !val);
+						if (val){
+							SetFieldProperty('spamcaptcher_use_proof_of_work', false);
+						}
+					}
 				</script>
 				<li class="spamcaptcher field_setting">
 					<label for="field_admin_label">
@@ -820,7 +839,7 @@ JS;
 						<input type="checkbox" id="allow_trust_me_account" onclick="SetFieldProperty('allowTrustMeAccount', this.checked);spamcaptcher_allow_tma_checkbox_clicked(this.checked);" /> Allow TrustMe Account
 						<?php gform_tooltip("allow_trust_me_account") ?>
 						<br />
-						<input type="checkbox" id="force_trust_me_account" onclick="SetFieldProperty('forceTrustMeAccount', this.checked);" /> Force TrustMe Account
+						<input type="checkbox" id="force_trust_me_account" onclick="SetFieldProperty('forceTrustMeAccount', this.checked);spamcaptcher_clicked_ftma(this.checked);" /> Force TrustMe Account
 						<?php gform_tooltip("force_trust_me_account") ?>
 					</div>
 				</li>
@@ -883,6 +902,15 @@ JS;
 						<input type="text" size="35" id="spamcaptcher_custom_checkbox_text" onkeyup="spamcaptcher_update_preview(this.value);SetFieldProperty('spamcaptcher_custom_checkbox_text', this.value);"/>
 						<?php gform_tooltip("spamcaptcher_custom_checkbox_text") ?>
 					</div>
+				</li>
+				<li class="spamcaptcher field_setting">
+					<label for="field_admin_label">
+						<?php _e("CAPTCHA Type", "gravityforms"); ?>
+					</label>
+					<input type="checkbox" size="35" id="spamcaptcher_use_proof_of_work" onclick="SetFieldProperty('spamcaptcher_use_proof_of_work',this.checked);"/>
+						Proof-of-Work
+						<?php gform_tooltip("spamcaptcher_use_proof_of_work") ?>
+					<br />
 				</li>
 				<li class="spamcaptcher field_setting">
 					<label for="field_admin_label">
@@ -1029,6 +1057,8 @@ JS;
 						});
 						jQuery("#spamcaptcher_target").attr('checked', field["spamcaptcher_use_target"] === true);
 						spamcaptcher_error_msg_change_focus(jQuery("#spamcaptcher_error_message"), false);
+						jQuery("#spamcaptcher_use_proof_of_work").attr('checked', field["spamcaptcher_use_proof_of_work"] === true);
+						spamcaptcher_clicked_ftma(field["forceTrustMeAccount"] == true); //sets the proof-of-work stuff based on the ftma setting
 					}
 				});
 				
@@ -1114,7 +1144,8 @@ JS;
 						$toggle_opacity = $this->options['toggle_opacity'];
 						$bind_to_form = $this->options['bind_to_form'];
 					}
-					$input .= $this->show_spamcaptcher_captcha_all_options($field["forceTrustMeAccount"],$field["allowTrustMeAccount"],$toggle_opacity,$bind_to_form, ($field["spamcaptcher_trigger_checkbox"] != "spamcaptcher_default_trigger" ? $field["spamcaptcher_trigger_checkbox"] : null), !$field["spamcaptcher_use_default_tma_settings"]);
+					$useProofOfWork = $field["spamcaptcher_use_proof_of_work"];
+					$input .= $this->show_spamcaptcher_captcha_all_options($field["forceTrustMeAccount"],$field["allowTrustMeAccount"],$toggle_opacity,$bind_to_form, ($field["spamcaptcher_trigger_checkbox"] != "spamcaptcher_default_trigger" ? $field["spamcaptcher_trigger_checkbox"] : null), !$field["spamcaptcher_use_default_tma_settings"], $useProofOfWork);
 				}
 				return $input;
 			}
@@ -1128,7 +1159,7 @@ JS;
 						if (isset($field['spamcaptcher_use_target']) && $field['spamcaptcher_use_target'] && isset($field['spamcaptcher_target_value']) && $field['spamcaptcher_target_value'] && current_user_can($field['spamcaptcher_target_value'])){
 							break;
 						}
-						$sc_obj = $this->check_spamcaptcher_answer(null, $field["forceTrustMeAccount"],$field["allowTrustMeAccount"],"",!$field["spamcaptcher_use_default_tma_settings"]);
+						$sc_obj = $this->check_spamcaptcher_answer(null, $field["forceTrustMeAccount"],$field["allowTrustMeAccount"],"",!$field["spamcaptcher_use_default_tma_settings"], null, null, $field["spamcaptcher_use_proof_of_work"]);
 						$recommendation = $sc_obj->getRecommendedAction();
 						if($recommendation != SpamCaptcher::$SHOULD_PASS){
 							$validation_result["is_valid"] = false;

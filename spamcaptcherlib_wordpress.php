@@ -59,7 +59,7 @@ class SpamCaptcher
 	/**
 	 * The version of the SpamCaptcher library you are using.
 	 */
-	private $languageOrFrameworkVersion = "1.1.1";
+	private $languageOrFrameworkVersion = "1.2.0";
 	
 	/**
 	 * The unique identifer for the session.
@@ -101,6 +101,18 @@ class SpamCaptcher
 	* Account settings you have set at https://www.spamcaptcher.com.
 	*/
 	private $overwriteGlobalTMASettings = false;
+	
+	/**
+	* Whether to use a proof-of-work challenge 
+	* instead of the normal CAPTCHA.
+	*/
+	private $useProofOfWorkCaptcha = false;
+	
+	/**
+	* The average amount of time, in seconds, the
+	* proof-of-work should take a "standard" computer.
+	*/
+	private $proofOfWorkTime = 1;
 	
 	/**
 	 * The maximum spam score that will result in
@@ -366,6 +378,20 @@ class SpamCaptcher
 	}
 
 	/**
+	 * Returns the expected time to complete the form.
+	 */
+	public function getTimeToCompleteForm(){
+		return $this->timeToCompleteForm;
+	}
+	
+	/**
+	 * Sets the expected time to complete the form.
+	 */
+	public function setTimeToCompleteForm($timetocomplete){
+		$this->timeToCompleteForm = $timetocomplete;
+	}
+
+	/**
 	 * Sets whether the user can authenticate the session with a TrustMe Account.
 	 */
 	public function setAllowTrustMeAccount($allow_tma){
@@ -380,6 +406,27 @@ class SpamCaptcher
 		$this->forceTrustMeAccount = $force_tma;
 		$this->overwriteGlobalTMASettings = true;
 	}
+	
+	/**
+	 * Sets whether the session's TrustMe Account settings should be based on the global ones or session specific ones.
+	 */
+    public function setOverwriteGlobalTrustMeAccountSettings($overwrite_gtmas){
+        $this->overwriteGlobalTMASettings = $overwrite_gtmas;
+    }
+	
+	/**
+	 * Sets whether a proof-of-work should be used instead of the standard CAPTCHA.
+	 */
+    public function useProofOfWork($usePOW){
+        $this->useProofOfWorkCaptcha = $usePOW;
+    }
+	
+	/**
+	 * Sets the amount of time, in seconds, a "standard" computer should take to solve the proof-of-work.
+	 */
+    public function setProofOfWorkTime($powTime){
+        $this->proofOfWorkTime = $powTime;
+    }
 	
 	/**
 	 * Returns the HTML code to employ our service (i.e. place our CAPTCHA) on your site.
@@ -470,6 +517,11 @@ class SpamCaptcher
 			$args['k'] = $this->accountID;
 			$args['pwd'] = $this->privateKey;
 			$args['ua'] = $this->userAction;
+            if (isset($this->customerSessionID)){
+                $args['c'] = $this->customerSessionID;
+            }
+			$args['upow'] = $this->useProofOfWorkCaptcha ? "1" : "0";
+			$args['powt'] = $this->proofOfWorkTime;
 			$xmlresponse = $this->postData($this->baseURL, "/validate", $this->useSSL, $args);
 			if ($xmlresponse){
 				$doc = DOMDocument::loadXML($xmlresponse);
@@ -514,6 +566,29 @@ class SpamCaptcher
 			}
 		}
 		return $this->recommendedAction;
+   }
+   
+   /**
+	* Validates the session and returns the recommended action.
+    */
+   public function doValidation($value){
+        $args = array (
+			'ip' => $_SERVER['REMOTE_ADDR'],
+			'id' => $value["spamCaptcherSessionID"],
+			'ftma' => ($this->forceTrustMeAccount ? "1" : "0"),
+			'atma' => ($this->allowTrustMeAccount ? "1" : "0"),
+			'ogtmas' => ($this->overwriteGlobalTMASettings ? "1" : "0"),
+			'spamCaptcherAnswer' => $value["spamCaptcherAnswer"]
+		);
+        $this->sessionID = $value["spamCaptcherSessionID"];
+        return $this->validate($args);
+   }
+   
+   /**
+    * Validates the session and returns true if and only if recommended action is not SHOULD_DELETE.
+    */ 
+   public function isValid($value){
+        return ($this->doValidation($value) != self::$SHOULD_DELETE);
    }
    
    /**
@@ -632,7 +707,7 @@ function spamcaptcher_get_captcha($accountID = null, $settings = "{}"){
 /**
  * Returns the recommended action (i.e. SHOULD_PASS, SHOULD_MODERATE or SHOULD_DELETE) for the session.
  */
-function spamcaptcher_validate($accountID = null, $privateKey = null, $forceTrustMeAccount = false, $allowTrustMeAccount = true, $overwriteGlobalTMASettings = false, $csessID = null){
+function spamcaptcher_validate($accountID = null, $privateKey = null, $forceTrustMeAccount = false, $allowTrustMeAccount = true, $overwriteGlobalTMASettings = false, $csessID = null, $useProofOfWork = false, $proofOfWorkTime = 1){
 	$sessionID = null;
 	$answer = null;
 	if (isset($_POST["spamCaptcherSessionID"])){
@@ -653,6 +728,8 @@ function spamcaptcher_validate($accountID = null, $privateKey = null, $forceTrus
 	$sc_obj = new SpamCaptcher($accountID, $privateKey);
 	$sc_obj->setCustomerSessionID($csessID);
 	$sc_obj->setSessionID($sessionID);
+	$sc_obj->useProofOfWork($useProofOfWork);
+	$sc_obj->setProofOfWorkTime($proofOfWorkTime);
 	return $sc_obj->validate($args);
 }
 
