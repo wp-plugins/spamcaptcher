@@ -1,6 +1,6 @@
 === Plugin Name ===
 Contributors: SpamCaptcher
-Tags: comments, registration, spamcaptcher, antispam, captcha, spam, trustme account, behavior analysis, gravity forms, form, protection, security
+Tags: comments, registration, spamcaptcher, antispam, captcha, spam, trustme account, behavior analysis, gravity forms, form, protection, security, hashcash, proof of work, hidden captcha, invisible captcha
 Requires at least: 2.7
 Tested up to: 3.3.2
 Stable tag: 1.2.0
