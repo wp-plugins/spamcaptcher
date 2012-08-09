@@ -3,7 +3,7 @@ Contributors: SpamCaptcher
 Tags: comments, registration, spamcaptcher, antispam, captcha, spam, trustme account, behavior analysis, gravity forms, form, protection, security, hashcash, proof of work, hidden captcha, invisible captcha
 Requires at least: 2.7
 Tested up to: 3.3.2
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 
 Integrates SpamCaptcher anti-spam methods with WordPress including comment and registration spam protection.
 
@@ -58,8 +58,11 @@ To install from a zipped up SpamCaptcher bundle:
 
 == ChangeLog ==
 
+= Version 1.2.1 =
+* Updated some text on the admin settings page.
+
 = Version 1.2.0 =
-* Added the proof of work capability (similar to hashcash)
+* Added the proof of work capability (similar to hashcash).
 
 = Version 1.1.1 =
 * Fixed SSL issue.
