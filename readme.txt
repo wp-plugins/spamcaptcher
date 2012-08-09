@@ -58,7 +58,7 @@ To install from a zipped up SpamCaptcher bundle:
 
 == ChangeLog ==
 
-= Version 1.1.1 =
+= Version 1.2.0 =
 * Added the proof of work capability (similar to hashcash)
 
 = Version 1.1.1 =
