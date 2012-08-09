@@ -550,7 +550,7 @@ JS;
                 // do not check trackbacks/pingbacks
                 if ($comment_data['comment_type'] == '') {
                     
-                    $sc_obj = $this->check_spamcaptcher_answer(null, $this->options['comments_force_tma'], true, SpamCaptcher::$USER_ACTION_LEAVE_COMMENT);
+                    $sc_obj = $this->check_spamcaptcher_answer(null, $this->options['comments_force_tma'], true, SpamCaptcher::$USER_ACTION_LEAVE_COMMENT, true, $this->options['min_moderation_score'], $this->options['max_moderation_score'], $this->options['comments_use_proof_of_work'], $this->options['comments_proof_of_work_time']);
 					$response = $sc_obj->getRecommendedAction();
                     
                     if ($response == SpamCaptcher::$SHOULD_PASS){
@@ -822,10 +822,11 @@ JS;
 					}
 					
 					function spamcaptcher_clicked_ftma(val){
-						jQuery("#spamcaptcher_use_proof_of_work").attr("disabled", val).attr("checked", !val);
 						if (val){
 							SetFieldProperty('spamcaptcher_use_proof_of_work', false);
+							jQuery("#spamcaptcher_use_proof_of_work").attr("checked", false);
 						}
+						jQuery("#spamcaptcher_use_proof_of_work").attr("disabled", val);
 					}
 				</script>
 				<li class="spamcaptcher field_setting">
@@ -1058,7 +1059,9 @@ JS;
 						jQuery("#spamcaptcher_target").attr('checked', field["spamcaptcher_use_target"] === true);
 						spamcaptcher_error_msg_change_focus(jQuery("#spamcaptcher_error_message"), false);
 						jQuery("#spamcaptcher_use_proof_of_work").attr('checked', field["spamcaptcher_use_proof_of_work"] === true);
-						spamcaptcher_clicked_ftma(field["forceTrustMeAccount"] == true); //sets the proof-of-work stuff based on the ftma setting
+						if (field["forceTrustMeAccount"]){
+							jQuery("#spamcaptcher_use_proof_of_work").attr('checked', false).attr('disabled', true);
+						}
 					}
 				});
 				
