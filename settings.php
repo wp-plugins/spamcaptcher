@@ -74,7 +74,7 @@
 <div class="wrap">
    <a name="spamcaptcher"></a>
    <h2><?php _e('SpamCaptcher Options', 'spamcaptcher'); ?></h2>
-   <p><?php _e('SpamCaptcher is a free, accessible CAPTCHA service that fights spam without ruining the user experience.', 'spamcaptcher'); ?></p>
+   <p><?php _e('SpamCaptcher is a free and accessible CAPTCHA service that fights spam and automated attacks without ruining the user experience.', 'spamcaptcher'); ?></p>
    
    <form method="post" action="options.php">
       <?php settings_fields('spamcaptcher_options_group'); ?>
